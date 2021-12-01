@@ -44,13 +44,17 @@ class _MangaDescState extends State<MangaDesc> {
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
-              fontSize: 17,
+              fontSize: 20,
             ),
+          ),
+          SizedBox(
+            height: 10,
           ),
           Text(
             widget.mangaDesc!,
             style: TextStyle(
               color: Colors.white,
+              fontSize: 15,
             ),
             maxLines: readMore ? 100 : 3,
             overflow: TextOverflow.ellipsis,
@@ -62,12 +66,15 @@ class _MangaDescState extends State<MangaDesc> {
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
-              fontSize: 17,
+              fontSize: 20,
             ),
+          ),
+          SizedBox(
+            height: 10,
           ),
           Text(
             widget.mangaGenres!,
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white, fontSize: 15),
           ),
         ],
       ),

@@ -22,33 +22,45 @@ class _DetailScreenState extends State<DetailScreen> {
   List<Map<String, dynamic>>? mangaDetail;
   List<Map<String, dynamic>>? mangaDescList;
   List<Map<String, dynamic>>? mangaChapterList;
+  List<Map<String, dynamic>>? mangaArtist;
   void getMangaInfos() async {
-    String tempBaseUrl = widget.mangaLink!.split(".com")[0] + ".com";
-    String tempRoute = widget.mangaLink!.split(".com")[1];
+    String tempBaseUrl = widget.mangaLink!.split(".net")[0] + ".net";
+    String tempRoute = widget.mangaLink!.split(".net")[1];
+    print(tempBaseUrl);
+    print(tempRoute);
 
     final webscraper = WebScraper(tempBaseUrl);
     if (await webscraper.loadWebPage(tempRoute)) {
       mangaDetail = webscraper.getElement(
-        "div.detail-info > div.row > div.col-xs-8.col-info > ul.list-info > li >p.col-xs-8",
+        // "div.detail-info > div.row > div.col-xs-8.col-info > ul.list-info > li >p.col-xs-8",
+        "div.detail-banner-info > ul > li > a",
         [],
       );
       mangaDescList = webscraper.getElement(
-        "div.detail-content > p",
+        "div.detail-manga-intro",
         [],
       );
-      mangaChapterList = webscraper.getElement(
-        "div#nt_listchapter.list-chapter > nav > ul > li.row > div.col-xs-5.chapter > a",
-        ['href'],
+      mangaArtist = webscraper.getElement(
+        'div.detail-banner-info > ul > li > a > span',
+        [],
       );
+      print(mangaArtist);
     }
 
     setState(() {
       mangaLoaded = true;
     });
-    mangaGenres = mangaDetail![2]['title'].toString().trim();
-    mangaStatus = mangaDetail![1]['title'].toString().trim();
-    mangaAuthor = mangaDetail![0]['title'].toString().trim();
+    mangaGenres = "";
+    for (int i = 0; i < mangaDetail!.length; i++) {
+      if (i == mangaDetail!.length - 1) {
+        mangaGenres = mangaGenres! + mangaDetail![i]['title'].toString().trim();
+      } else {
+        mangaGenres =
+            mangaGenres! + mangaDetail![i]['title'].toString().trim() + " - ";
+      }
+    }
     mangaDesc = mangaDescList![0]['title'].toString().trim();
+    mangaAuthor = mangaArtist![0]['title'].toString().trim();
   }
 
   @override
@@ -70,7 +82,7 @@ class _DetailScreenState extends State<DetailScreen> {
             style: TextStyle(fontFamily: ('Calibri')),
           ),
           centerTitle: true,
-          backgroundColor: Constants.darkgray,
+          backgroundColor: Constants.blue,
           elevation: 0.0,
         ),
         body: mangaLoaded
@@ -86,22 +98,13 @@ class _DetailScreenState extends State<DetailScreen> {
                       mangaImg: widget.mangaImg,
                       mangaStatus: mangaStatus.toString(),
                       mangaAuthor: mangaAuthor.toString(),
+                      mangaTitle: widget.mangaTitle,
+                      mangaLink: widget.mangaLink,
                     ),
                     MangaDesc(
                       mangaDesc: mangaDesc,
                       mangaGenres: mangaGenres,
                     ),
-                    Divider(),
-                    Text(
-                      "Chapters",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 17,
-                      ),
-                    ),
-                    Divider(),
-                    MangaChapters(mangaChapter: mangaChapterList)
                   ],
                 )),
               )

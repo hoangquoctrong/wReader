@@ -10,7 +10,7 @@ class mangaCard extends StatelessWidget {
   Future<Widget> buildPageAsync() async {
     return Future.microtask(() {
       return DetailScreen(
-        mangaImg: "http:$mangaImg",
+        mangaImg: mangaImg,
         mangaLink: mangaUrl,
         mangaTitle: mangaTitle,
       );
@@ -32,7 +32,7 @@ class mangaCard extends StatelessWidget {
             navigatorPush(
               context,
               DetailScreen(
-                mangaImg: "http:$mangaImg",
+                mangaImg: mangaImg,
                 mangaLink: mangaUrl,
                 mangaTitle: mangaTitle,
               ),
@@ -46,7 +46,7 @@ class mangaCard extends StatelessWidget {
                     child: ClipRRect(
                   borderRadius: BorderRadius.circular(10.0),
                   child: Image.network(
-                    "http:$mangaImg",
+                    mangaImg.toString(),
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wreader/Screen/content_screen.dart';
 import 'package:wreader/Screen/detail_screen.dart';
 import 'package:wreader/Screen/home_screen.dart';
 

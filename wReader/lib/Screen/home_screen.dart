@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:wreader/Screen/detail_screen.dart';
+import 'package:wreader/Screen/search_screen.dart';
 import 'package:wreader/components/HomeScreenComponents/manga_cards.dart';
 import 'package:wreader/components/HomeScreenComponents/manga_list.dart';
 import 'package:wreader/constants/constants.dart';
@@ -26,13 +30,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void fetchManga() async {
     final webscraper = WebScraper(Constants.baseUrl);
-    if (await webscraper.loadWebPage('')) {
+    print(Constants.baseUrl);
+    if (await webscraper.loadWebPage('comic?page=1/')) {
       mangaList = webscraper.getElement(
-        'div.ModuleContent > div.items > div.row > div.item > figure > div.image > a > img.lazy',
-        ['data-original', 'alt'],
+        'div.content > div.box > div.card-list > div.card > a > img.card-img',
+        ['src', 'alt'],
       );
       mangaUrlList = webscraper.getElement(
-        'div.ModuleContent > div.items > div.row > div.item > figure > div.image > a',
+        'div.content > div.box > div.card-list > div.card > a',
         ['href'],
       );
     }
@@ -54,6 +59,13 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('wReader'),
         backgroundColor: Constants.blue,
+        actions: <Widget>[
+          IconButton(
+              onPressed: () {
+                showSearch(context: context, delegate: Search());
+              },
+              icon: Icon(Icons.search))
+        ],
       ),
       body: mangaLoaded
           ? MangaList(mangaList: mangaList, mangaUrlList: mangaUrlList)
@@ -73,5 +85,42 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+}
+
+class Search extends SearchDelegate<String> {
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = "";
+        },
+      )
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+        onPressed: () {
+          close(context, "");
+        },
+        icon: Icon(Icons.arrow_back));
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return SearchContent(query: query);
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return query == "" ? Container() : SearchContent(query: query);
+  }
+
+  Widget buildSuggestionsSuccess(Size screenSize) {
+    return Container();
   }
 }

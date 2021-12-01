@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 class Constants {
   Constants._();
 
-  static const String baseUrl = "http://www.nettruyenpro.com";
+  static const String baseUrl = "https://truyentranh.net/";
 
   static const Color darkgray = Color.fromRGBO(33, 33, 33, 1);
   static const Color lightgray = Color.fromRGBO(35, 35, 35, 1);
