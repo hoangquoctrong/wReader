@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:web_scraper/web_scraper.dart';
 import 'package:wreader/components/HomeScreenComponents/manga_cards.dart';
 import 'package:wreader/constants/constants.dart';
@@ -19,50 +20,68 @@ class _MangaListState extends State<MangaList> {
   List<Map<String, dynamic>>? newmangaList;
   List<Map<String, dynamic>>? newmangaUrlList;
 
-  ScrollController _sc = new ScrollController();
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
   bool isLoading = false;
   int page = 2;
+  void _onRefresh() async {
+    // monitor network fetch
+    await RefreshData();
+    // if failed,use refreshFailed()
+    _refreshController.refreshCompleted();
+  }
 
-  void _getMoreData(int index) async {
-    if (!isLoading) {
-      setState(() {
-        isLoading = true;
-      });
-      final webscraper = WebScraper(Constants.baseUrl);
-      final webTemp = 'comic?page=' + page.toString();
-
-      print(webTemp);
-      if (await webscraper.loadWebPage(webTemp)) {
-        newmangaList = webscraper.getElement(
-          'div.content > div.box > div.card-list > div.card > a > img.card-img',
-          ['src', 'alt'],
-        );
-        newmangaUrlList = webscraper.getElement(
-          'div.content > div.box > div.card-list > div.card > a',
-          ['href'],
-        );
-        mangaList!.addAll(newmangaList!);
-        mangaUrlList!.addAll(newmangaUrlList!);
-        print(newmangaList);
-      }
-      setState(() {
-        isLoading = false;
-        page++;
-      });
+  Future<void> RefreshData() async {
+    setState(() {});
+    final webscraper = WebScraper(Constants.baseUrl);
+    final webTemp = 'comic?page=1';
+    if (await webscraper.loadWebPage(webTemp)) {
+      mangaList = webscraper.getElement(
+        'div.content > div.box > div.card-list > div.card > a > img.card-img',
+        ['src', 'alt'],
+      );
+      mangaUrlList = webscraper.getElement(
+        'div.content > div.box > div.card-list > div.card > a',
+        ['href'],
+      );
+      page = 2;
+      setState(() {});
+      print(mangaList);
     }
+  }
+
+  void _onLoading() async {
+    // monitor network fetch
+    await _getMoreData(page);
+    if (mounted) setState(() {});
+    _refreshController.loadComplete();
+  }
+
+  Future<void> _getMoreData(int index) async {
+    final webscraper = WebScraper(Constants.baseUrl);
+    final webTemp = 'comic?page=' + page.toString();
+    if (await webscraper.loadWebPage(webTemp)) {
+      newmangaList = webscraper.getElement(
+        'div.content > div.box > div.card-list > div.card > a > img.card-img',
+        ['src', 'alt'],
+      );
+      newmangaUrlList = webscraper.getElement(
+        'div.content > div.box > div.card-list > div.card > a',
+        ['href'],
+      );
+      mangaList!.addAll(newmangaList!);
+      mangaUrlList!.addAll(newmangaUrlList!);
+    }
+    setState(() {
+      page++;
+    });
   }
 
   @override
   void initState() {
     mangaList = widget.mangaList;
     mangaUrlList = widget.mangaUrlList;
-    print(mangaList);
-    print(mangaUrlList);
-    _sc.addListener(() {
-      if (_sc.position.pixels == _sc.position.maxScrollExtent) {
-        _getMoreData(page);
-      }
-    });
     // TODO: implement initState
     super.initState();
   }
@@ -75,38 +94,44 @@ class _MangaListState extends State<MangaList> {
       height: screenSize.height,
       width: double.infinity,
       color: Constants.black,
-      child: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        controller: _sc,
-        child: Column(
-          children: [
-            Wrap(
-              children: [
-                Center(
-                  child: isLoading ? CircularProgressIndicator() : SizedBox(),
-                ),
-                Container(
-                  width: double.infinity,
-                  height: 30,
-                  padding: EdgeInsets.only(left: 10),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    widget.mangaList!.length.toString() + ' mangas',
-                    style: TextStyle(
-                      fontSize: 23,
-                      color: Colors.white,
+      child: SmartRefresher(
+        enablePullUp: true,
+        enablePullDown: true,
+        controller: _refreshController,
+        onLoading: _onLoading,
+        onRefresh: _onRefresh,
+        child: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
+          child: Column(
+            children: [
+              Wrap(
+                children: [
+                  Center(
+                    child: isLoading ? CircularProgressIndicator() : SizedBox(),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    height: 30,
+                    padding: EdgeInsets.only(left: 10),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Mới cập nhật",
+                      style: TextStyle(
+                        fontSize: 23,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                ),
-                for (int i = 0; i < mangaList!.length; i++)
-                  mangaCard(
-                    mangaImg: mangaList![i]['attributes']['src'],
-                    mangaTitle: mangaList![i]['attributes']['alt'],
-                    mangaUrl: mangaUrlList![i]['attributes']['href'],
-                  ),
-              ],
-            ),
-          ],
+                  for (int i = 0; i < mangaList!.length; i++)
+                    mangaCard(
+                      mangaImg: mangaList![i]['attributes']['src'],
+                      mangaTitle: mangaList![i]['attributes']['alt'],
+                      mangaUrl: mangaUrlList![i]['attributes']['href'],
+                    ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -39,6 +39,7 @@ class Favorite {
   });
   Favorite copy({
     int? id,
+    String? mangTitle,
     String? mangaLink,
     String? mangaImg,
     String? mangaDesc,

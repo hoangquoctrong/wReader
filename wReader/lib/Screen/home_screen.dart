@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:wreader/Screen/detail_screen.dart';
-import 'package:wreader/Screen/search_screen.dart';
+import 'package:wreader/Screen/favourite_screen.dart';
+import 'package:wreader/Screen/history_screen.dart';
+import 'package:wreader/components/HomeScreenComponents/search_screen.dart';
 import 'package:wreader/components/HomeScreenComponents/manga_cards.dart';
 import 'package:wreader/components/HomeScreenComponents/manga_list.dart';
 import 'package:wreader/constants/constants.dart';
@@ -26,6 +28,20 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       selectedNavIndex = index;
     });
+  }
+
+  Widget _buildChild() {
+    switch (selectedNavIndex) {
+      case 1:
+        return FavouriteScreen();
+        break;
+      case 2:
+        return HistoryScreen();
+        break;
+      default:
+        return MangaList(mangaList: mangaList, mangaUrlList: mangaUrlList);
+        break;
+    }
   }
 
   void fetchManga() async {
@@ -58,7 +74,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('wReader'),
-        backgroundColor: Constants.blue,
         actions: <Widget>[
           IconButton(
               onPressed: () {
@@ -68,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: mangaLoaded
-          ? MangaList(mangaList: mangaList, mangaUrlList: mangaUrlList)
+          ? _buildChild()
           : const Center(child: CircularProgressIndicator()),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,

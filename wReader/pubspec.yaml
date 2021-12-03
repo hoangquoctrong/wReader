@@ -39,6 +39,10 @@ dependencies:
   swipe_back_detector: ^2.0.0
   fluttertoast: ^8.0.8
   flutter_search_bar: ^2.1.0
+  floor: ^1.2.0
+  sqflite: ^2.0.0+4
+  pull_to_refresh: ^2.0.0
+  url_launcher: ^6.0.17
 
 dev_dependencies:
   flutter_test:

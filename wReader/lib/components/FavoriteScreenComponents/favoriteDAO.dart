@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:wreader/components/FavoriteScreenComponents/favorite.dart';
+import 'package:wreader/components/HistoryScreenComponents/history.dart';
 
 class FavoriteDatabase {
   static final FavoriteDatabase instance = FavoriteDatabase._init();
@@ -37,12 +38,31 @@ class FavoriteDatabase {
         ${FavoriteFields.mangaLink} $StringType,
         ${FavoriteFields.mangaTitle} $StringType)
         ''');
+    await db.execute('''
+        CREATE TABLE $tableHistory(
+        ${HistoryFields.id} $idType,
+        ${HistoryFields.mangaAuthor} $StringType,
+        ${HistoryFields.mangaDesc} $StringType,
+        ${HistoryFields.mangaGenres} $StringType,
+        ${HistoryFields.mangaImg} $StringType,
+        ${HistoryFields.mangaLink} $StringType,
+        ${HistoryFields.mangaTitle} $StringType,
+        ${HistoryFields.mangaChapter} $StringType,
+        ${HistoryFields.mangaChapterLink} $StringType,
+        ${HistoryFields.mangaChapterIndex} $intType)
+        ''');
   }
 
   Future<Favorite> create(Favorite favorite) async {
     final db = await instance.database;
     final id = await db!.insert(tableFavorites, favorite.toJson());
     return favorite.copy(id: id);
+  }
+
+  Future<History> createHistory(History history) async {
+    final db = await instance.database;
+    final id = await db!.insert(tableHistory, history.toJson());
+    return history.copy(id: id);
   }
 
   Future<Favorite> readFavorite(int id) async {
@@ -62,6 +82,31 @@ class FavoriteDatabase {
     }
   }
 
+  Future<List<History>> readHistory(String mangaLink) async {
+    final db = await instance.database;
+
+    final maps = await db!.query(
+      tableHistory,
+      columns: HistoryFields.values,
+      where: '${HistoryFields.mangaLink} = ?',
+      whereArgs: [mangaLink],
+    );
+
+    if (maps.isNotEmpty) {
+      return maps.map((json) => History.fromJson(json)).toList();
+    } else {
+      throw Exception('mangaLink $mangaLink not found');
+    }
+  }
+
+  //  Future<List<History>> readAllHistory() async {
+  //   final db = await instance.database;
+
+  //   final result = await db!.query(tableHistory);
+
+  //   return result.map((json) => History.fromJson(json)).toList();
+  // }
+
   Future<bool> checkFavorite(String mangaLink) async {
     final db = await instance.database;
 
@@ -79,12 +124,37 @@ class FavoriteDatabase {
     }
   }
 
+  Future<bool> checkHistory(String mangaLink) async {
+    final db = await instance.database;
+
+    final maps = await db!.query(
+      tableHistory,
+      columns: HistoryFields.values,
+      where: '${HistoryFields.mangaLink} = ?',
+      whereArgs: [mangaLink],
+    );
+
+    if (maps.isNotEmpty) {
+      return true;
+    }
+    return false;
+  }
+
   Future<List<Favorite>> readAllFavorite() async {
     final db = await instance.database;
 
     final result = await db!.query(tableFavorites);
 
     return result.map((json) => Favorite.fromJson(json)).toList();
+  }
+
+  Future<List<History>> readAllHistory() async {
+    final db = await instance.database;
+
+    final result =
+        await db!.query(tableHistory, orderBy: '${HistoryFields.id} desc');
+
+    return result.map((json) => History.fromJson(json)).toList();
   }
 
   Future<int> update(Favorite favorite) async {
@@ -95,6 +165,17 @@ class FavoriteDatabase {
       favorite.toJson(),
       where: '${FavoriteFields.id} = ?',
       whereArgs: [favorite.id],
+    );
+  }
+
+  Future<int> updateHistory(History history) async {
+    final db = await instance.database;
+
+    return db!.update(
+      tableHistory,
+      history.toJson(),
+      where: '${HistoryFields.mangaLink} = ?',
+      whereArgs: [history.mangaLink],
     );
   }
 

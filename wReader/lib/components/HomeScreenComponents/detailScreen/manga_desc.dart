@@ -20,7 +20,7 @@ class _MangaDescState extends State<MangaDesc> {
   }
 
   Widget overMultiLine() {
-    return (widget.mangaDesc!.trim()).split(" ").length > 30
+    return (widget.mangaDesc!.trim()).split(" ").length > 40
         ? GestureDetector(
             onTap: ToggleRead,
             child: Text(
@@ -60,7 +60,6 @@ class _MangaDescState extends State<MangaDesc> {
             overflow: TextOverflow.ellipsis,
           ),
           overMultiLine(),
-          Divider(),
           Text(
             "Thể loại",
             style: TextStyle(

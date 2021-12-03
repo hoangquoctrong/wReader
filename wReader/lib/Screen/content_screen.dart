@@ -1,19 +1,35 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:web_scraper/web_scraper.dart';
+import 'package:wreader/components/FavoriteScreenComponents/favoriteDAO.dart';
+import 'package:wreader/components/HistoryScreenComponents/history.dart';
 import 'package:wreader/constants/constants.dart';
+import 'package:wreader/widgets/HorDivider.dart';
 
 class ContentScreen extends StatefulWidget {
   final String mangaLink;
+  final String mangaTitle;
+  final String mangaImg;
+  final String mangaDesc;
+  final String mangaGenres;
+  final String mangaAuthor;
   final int index;
+  final String mangaChapterLink;
   final List<Map<String, dynamic>>? mangaChapter;
-  const ContentScreen(
-      {Key? key,
-      required this.mangaLink,
-      this.mangaChapter,
-      required this.index})
-      : super(key: key);
+  const ContentScreen({
+    Key? key,
+    required this.mangaLink,
+    this.mangaChapter,
+    required this.index,
+    required this.mangaTitle,
+    required this.mangaImg,
+    required this.mangaDesc,
+    required this.mangaGenres,
+    required this.mangaAuthor,
+    required this.mangaChapterLink,
+  }) : super(key: key);
 
   @override
   _ContentScreenState createState() => _ContentScreenState();
@@ -23,13 +39,100 @@ class _ContentScreenState extends State<ContentScreen> {
   List<Map<String, dynamic>>? contentPages;
   List<Map<String, dynamic>>? chapterChanges;
   List<Map<String, dynamic>>? chapterTitle;
-  ScrollController? _controller = ScrollController();
   bool dataFetched = false;
   String? mangaUrl;
   int? indexChap;
 
-  void getContent() async {
-    dataFetched = false;
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
+  void _onPrevious() async {
+    // monitor network fetch
+    await PreviousChap();
+    // if failed,use refreshFailed()
+    _refreshController.refreshCompleted();
+  }
+
+  void _onNext() async {
+    await NextChap();
+    _refreshController.loadComplete();
+  }
+
+  void SaveIntoDB(String mangaChapterLink, int index) async {
+    History history = new History(
+      mangaTitle: widget.mangaTitle,
+      mangaLink: widget.mangaLink,
+      mangaImg: widget.mangaImg,
+      mangaDesc: widget.mangaDesc,
+      mangaGenres: widget.mangaGenres,
+      mangaAuthor: widget.mangaAuthor,
+      mangaChapter: widget.mangaChapter![index]['title'],
+      mangaChapterLink: mangaChapterLink,
+      mangaChapterIndex: index,
+      id: DateTime.now().millisecondsSinceEpoch,
+    );
+    if (await FavoriteDatabase.instance
+            .checkHistory(widget.mangaLink.toString()) ==
+        true) {
+      await FavoriteDatabase.instance.updateHistory(history);
+      print("run update");
+    } else {
+      await FavoriteDatabase.instance.createHistory(history);
+      print("run create");
+    }
+    print(widget.mangaLink.toString());
+  }
+
+  void ChapterChange(String mangaLink, int index) async {
+    mangaUrl = mangaLink;
+    indexChap = index;
+    SaveIntoDB(mangaLink, index);
+    await getContent();
+    setState(() {});
+  }
+
+  Future<void> PreviousChap() async {
+    if (chapterChanges![0]['attributes']['class'] == "previous-chapter" &&
+        chapterChanges!.length == 1) {
+      Fluttertoast.showToast(
+        msg: "Đây là chap đầu tiên",
+        toastLength: Toast.LENGTH_SHORT,
+      );
+    } else if (chapterChanges![0]['attributes']['class'] == "next-chapter") {
+      mangaUrl = chapterChanges![0]['attributes']['href'];
+      indexChap = indexChap! + 1;
+      SaveIntoDB(mangaUrl.toString(), indexChap!);
+      getContent();
+    } else {
+      mangaUrl = chapterChanges![1]['attributes']['href'];
+      indexChap = indexChap! + 1;
+      SaveIntoDB(mangaUrl.toString(), indexChap!);
+      getContent();
+    }
+    setState(() {});
+  }
+
+  Future<void> NextChap() async {
+    if (chapterChanges![0]['attributes']['class'] == "next-chapter" &&
+        chapterChanges!.length == 1) {
+      Fluttertoast.showToast(
+        msg: "Đây là chap cuối cùng",
+        toastLength: Toast.LENGTH_SHORT,
+      );
+    } else {
+      mangaUrl = chapterChanges![0]['attributes']['href'];
+      indexChap = indexChap! - 1;
+      SaveIntoDB(mangaUrl.toString(), indexChap!);
+      getContent();
+    }
+    setState(() {});
+  }
+
+  Future<void> getContent() async {
+    setState(() {
+      dataFetched = false;
+    });
+
     String tempBaseUrl = mangaUrl!.split(".net")[0] + ".net";
     String tempRoute = mangaUrl!.split(".net")[1];
     final webscraper = WebScraper(tempBaseUrl);
@@ -47,52 +150,10 @@ class _ContentScreenState extends State<ContentScreen> {
         'div.section.section-nav-chapter > div.container > div.header-section-nav > ul > li',
         ['title'],
       );
-      dataFetched = true;
-      print(chapterTitle);
-      setState(() {});
-    }
-  }
 
-  ChapterChanged() {}
-
-  _scrollListener() {
-    if (_controller!.offset >= _controller!.position.maxScrollExtent &&
-        !_controller!.position.outOfRange) {
-      if (chapterChanges![0]['attributes']['class'] == "next-chapter" &&
-          chapterChanges!.length == 1) {
-        Fluttertoast.showToast(
-          msg: "Đây là chap cuối cùng",
-          toastLength: Toast.LENGTH_SHORT,
-        );
-      } else {
-        mangaUrl = chapterChanges![0]['attributes']['href'];
-        indexChap = indexChap! - 1;
-        getContent();
-      }
-      setState(() {});
-    }
-    if (_controller!.offset <= _controller!.position.minScrollExtent &&
-        !_controller!.position.outOfRange) {
-      if (chapterChanges![0]['attributes']['class'] == "previous-chapter" &&
-          chapterChanges!.length == 1) {
-        Fluttertoast.showToast(
-          msg: "Đây là chap đầu tiên",
-          toastLength: Toast.LENGTH_SHORT,
-        );
-        // toastLength: Toast.LENGTH_SHORT,
-        // gravity: ToastGravity.BOTTOM,
-        // backgroundColor: Colors.black54,
-        // textColor: Colors.white);
-      } else if (chapterChanges![0]['attributes']['class'] == "next-chapter") {
-        mangaUrl = chapterChanges![0]['attributes']['href'];
-        indexChap = indexChap! + 1;
-        getContent();
-      } else {
-        mangaUrl = chapterChanges![1]['attributes']['href'];
-        indexChap = indexChap! + 1;
-        getContent();
-      }
-      setState(() {});
+      setState(() {
+        dataFetched = true;
+      });
     }
   }
 
@@ -100,8 +161,8 @@ class _ContentScreenState extends State<ContentScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _controller!.addListener(_scrollListener);
-    mangaUrl = widget.mangaLink;
+    mangaUrl = widget.mangaChapterLink;
+    print("Manga URL : " + mangaUrl!);
     indexChap = widget.index;
     getContent();
   }
@@ -114,39 +175,123 @@ class _ContentScreenState extends State<ContentScreen> {
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
             floating: true,
+            snap: true,
             title: Text(widget.mangaChapter![indexChap!]['title'].toString()),
             centerTitle: true,
-            backgroundColor: Constants.black,
+            actions: <Widget>[
+              IconButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                        context: context,
+                        builder: (c) {
+                          return DraggableScrollableSheet(
+                              initialChildSize: 1.0,
+                              maxChildSize: 1.0,
+                              minChildSize: 0.5,
+                              builder: (BuildContext ct,
+                                  ScrollController scrollController) {
+                                return Container(
+                                  color: Constants.darkgray,
+                                  child: ListView.builder(
+                                      itemCount: widget.mangaChapter!.length,
+                                      shrinkWrap: true,
+                                      physics: BouncingScrollPhysics(),
+                                      itemBuilder: (context, index) {
+                                        return Column(
+                                          children: [
+                                            HorDivider(),
+                                            Container(
+                                              height: 50,
+                                              width: double.infinity,
+                                              child: Material(
+                                                color: Constants.darkgray,
+                                                child: InkWell(
+                                                  onTap: () => {
+                                                    Navigator.of(ct).pop(),
+                                                    ChapterChange(
+                                                        widget.mangaChapter![
+                                                                    index]
+                                                                ['attributes']
+                                                            ['href'],
+                                                        index)
+                                                  },
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: Text(
+                                                      widget.mangaChapter![
+                                                          index]['title'],
+                                                      style: TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }),
+                                );
+                              });
+                        });
+                  },
+                  icon: Icon(Icons.menu))
+            ],
           )
         ],
         body: dataFetched
             ? Container(
-                child: ListView.builder(
-                    controller: _controller!,
-                    shrinkWrap: true,
-                    itemCount: contentPages!.length,
-                    itemBuilder: (context, index) {
-                      return ClipRRect(
-                        child: CachedNetworkImage(
-                          imageUrl: contentPages![index]['attributes']['src']
-                              .toString()
-                              .trim(),
-                          fit: BoxFit.fitWidth,
+                child: SmartRefresher(
+                  controller: _refreshController,
+                  enablePullUp: true,
+                  enablePullDown: true,
+                  onLoading: _onNext,
+                  onRefresh: _onPrevious,
+                  header: WaterDropHeader(
+                    idleIcon: Icon(
+                      Icons.arrow_upward,
+                      color: Colors.white,
+                    ),
+                    waterDropColor: Colors.blue,
+                    refresh: Text("load thành công"),
+                  ),
+                  footer: ClassicFooter(
+                    iconPos: IconPosition.top,
+                    outerBuilder: (child) {
+                      return Container(
+                        width: 80.0,
+                        child: Center(
+                          child: child,
                         ),
                       );
+                    },
+                  ),
+                  child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: contentPages!.length,
+                      itemBuilder: (context, index) {
+                        return ClipRRect(
+                          child: CachedNetworkImage(
+                            imageUrl: contentPages![index]['attributes']['src']
+                                .toString()
+                                .trim(),
+                            fit: BoxFit.fitWidth,
+                          ),
+                        );
 
-                      // Image.network(
-                      //   contentPages![index]['attributes']['src']
-                      //       .toString()
-                      //       .trim(),
-                      //   fit: BoxFit.fitWidth,
-                      //   loadingBuilder: (context, child, loadingProgress) {
-                      //     if (loadingProgress == null) return child;
+                        // Image.network(
+                        //   contentPages![index]['attributes']['src']
+                        //       .toString()
+                        //       .trim(),
+                        //   fit: BoxFit.fitWidth,
+                        //   loadingBuilder: (context, child, loadingProgress) {
+                        //     if (loadingProgress == null) return child;
 
-                      //     return Center(child: CircularProgressIndicator());
-                      //   },
-                      // );
-                    }),
+                        //     return Center(child: CircularProgressIndicator());
+                        //   },
+                        // );
+                      }),
+                ),
               )
             : Center(
                 child: CircularProgressIndicator(),
