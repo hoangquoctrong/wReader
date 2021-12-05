@@ -5,18 +5,24 @@ import 'package:wreader/components/HomeScreenComponents/manga_cards.dart';
 import 'package:wreader/constants/constants.dart';
 
 class MangaList extends StatefulWidget {
-  final List<Map<String, dynamic>>? mangaList;
-  final List<Map<String, dynamic>>? mangaUrlList;
-  const MangaList({Key? key, this.mangaList, this.mangaUrlList})
-      : super(key: key);
+  final List<String> titleList;
+  final List<String> urlList;
+  final List<String> imgList;
+  const MangaList({
+    Key? key,
+    required this.titleList,
+    required this.urlList,
+    required this.imgList,
+  }) : super(key: key);
 
   @override
   _MangaListState createState() => _MangaListState();
 }
 
 class _MangaListState extends State<MangaList> {
-  List<Map<String, dynamic>>? mangaList;
-  List<Map<String, dynamic>>? mangaUrlList;
+  List<String>? titleList = [];
+  List<String>? urlList = [];
+  List<String>? imgList = [];
   List<Map<String, dynamic>>? newmangaList;
   List<Map<String, dynamic>>? newmangaUrlList;
 
@@ -33,21 +39,59 @@ class _MangaListState extends State<MangaList> {
   }
 
   Future<void> RefreshData() async {
-    setState(() {});
+    setState(() {
+      titleList = [];
+      urlList = [];
+      imgList = [];
+    });
     final webscraper = WebScraper(Constants.baseUrl);
-    final webTemp = 'comic?page=1';
-    if (await webscraper.loadWebPage(webTemp)) {
-      mangaList = webscraper.getElement(
-        'div.content > div.box > div.card-list > div.card > a > img.card-img',
-        ['src', 'alt'],
-      );
-      mangaUrlList = webscraper.getElement(
-        'div.content > div.box > div.card-list > div.card > a',
-        ['href'],
-      );
-      page = 2;
-      setState(() {});
-      print(mangaList);
+    switch (Constants.id) {
+      case 2:
+        {
+          if (await webscraper.loadWebPage("")) {
+            newmangaList = webscraper.getElement(
+              'div.ModuleContent > div.items > div.row > div.item > figure.clearfix > div.image > a > img.lazy',
+              ['data-original', 'alt'],
+            );
+            newmangaUrlList = webscraper.getElement(
+              'div.ModuleContent > div.items > div.row > div.item > figure.clearfix > div.image > a',
+              ['href'],
+            );
+            for (int i = 0; i < newmangaList!.length; i++) {
+              titleList!.add(newmangaList![i]['attributes']['alt']
+                  .toString()
+                  .substring(13,
+                      newmangaList![i]['attributes']['alt'].toString().length));
+              urlList!.add(newmangaUrlList![i]['attributes']['href']);
+
+              imgList!.add(newmangaList![i]['attributes']['data-original']);
+            }
+            page = 2;
+
+            setState(() {});
+          }
+          break;
+        }
+      default:
+        final webTemp = 'comic?page=1';
+        if (await webscraper.loadWebPage(webTemp)) {
+          newmangaList = webscraper.getElement(
+            'div.content > div.box > div.card-list > div.card > a > img.card-img',
+            ['src', 'alt'],
+          );
+          newmangaUrlList = webscraper.getElement(
+            'div.content > div.box > div.card-list > div.card > a',
+            ['href'],
+          );
+          for (int i = 0; i <= newmangaList!.length - 1; i++) {
+            titleList!.add(newmangaList![i]['attributes']['alt']);
+            urlList!.add(newmangaUrlList![i]['attributes']['href']);
+            imgList!.add(newmangaList![i]['attributes']['data-original']);
+          }
+          print(imgList);
+          page = 2;
+          setState(() {});
+        }
     }
   }
 
@@ -60,28 +104,61 @@ class _MangaListState extends State<MangaList> {
 
   Future<void> _getMoreData(int index) async {
     final webscraper = WebScraper(Constants.baseUrl);
-    final webTemp = 'comic?page=' + page.toString();
-    if (await webscraper.loadWebPage(webTemp)) {
-      newmangaList = webscraper.getElement(
-        'div.content > div.box > div.card-list > div.card > a > img.card-img',
-        ['src', 'alt'],
-      );
-      newmangaUrlList = webscraper.getElement(
-        'div.content > div.box > div.card-list > div.card > a',
-        ['href'],
-      );
-      mangaList!.addAll(newmangaList!);
-      mangaUrlList!.addAll(newmangaUrlList!);
+    switch (Constants.id) {
+      case 2:
+        if (await webscraper.loadWebPage("?page=" + page.toString())) {
+          newmangaList = webscraper.getElement(
+            'div.ModuleContent > div.items > div.row > div.item > figure.clearfix > div.image > a > img.lazy',
+            ['data-original', 'alt'],
+          );
+          newmangaUrlList = webscraper.getElement(
+            'div.ModuleContent > div.items > div.row > div.item > figure.clearfix > div.image > a',
+            ['href'],
+          );
+          for (int i = 0; i < newmangaList!.length; i++) {
+            titleList!.add(newmangaList![i]['attributes']['alt']
+                .toString()
+                .substring(13,
+                    newmangaList![i]['attributes']['alt'].toString().length));
+            urlList!.add(newmangaUrlList![i]['attributes']['href']);
+
+            imgList!.add(newmangaList![i]['attributes']['data-original']);
+          }
+          page++;
+
+          setState(() {});
+        }
+        break;
+      default:
+        {
+          final webTemp = 'comic?page=' + page.toString();
+          if (await webscraper.loadWebPage(webTemp)) {
+            newmangaList = webscraper.getElement(
+              'div.content > div.box > div.card-list > div.card > a > img.card-img',
+              ['src', 'alt'],
+            );
+            newmangaUrlList = webscraper.getElement(
+              'div.content > div.box > div.card-list > div.card > a',
+              ['href'],
+            );
+            for (int i = 0; i <= newmangaList!.length - 1; i++) {
+              titleList!.add(newmangaList![i]['attributes']['alt']);
+              urlList!.add(newmangaUrlList![i]['attributes']['href']);
+              imgList!.add(newmangaList![i]['attributes']['src']);
+            }
+            setState(() {
+              page++;
+            });
+          }
+        }
     }
-    setState(() {
-      page++;
-    });
   }
 
   @override
   void initState() {
-    mangaList = widget.mangaList;
-    mangaUrlList = widget.mangaUrlList;
+    titleList = widget.titleList;
+    imgList = widget.imgList;
+    urlList = widget.urlList;
     // TODO: implement initState
     super.initState();
   }
@@ -111,8 +188,8 @@ class _MangaListState extends State<MangaList> {
                   ),
                   Container(
                     width: double.infinity,
-                    height: 30,
-                    padding: EdgeInsets.only(left: 10),
+                    height: screenSize.height * 0.1,
+                    padding: EdgeInsets.only(left: 20),
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "Mới cập nhật",
@@ -122,11 +199,12 @@ class _MangaListState extends State<MangaList> {
                       ),
                     ),
                   ),
-                  for (int i = 0; i < mangaList!.length; i++)
+                  for (int i = 0; i < titleList!.length; i++)
                     mangaCard(
-                      mangaImg: mangaList![i]['attributes']['src'],
-                      mangaTitle: mangaList![i]['attributes']['alt'],
-                      mangaUrl: mangaUrlList![i]['attributes']['href'],
+                      mangaImg: imgList![i],
+                      mangaTitle: titleList![i],
+                      mangaUrl: urlList![i],
+                      sourceID: Constants.id,
                     ),
                 ],
               ),

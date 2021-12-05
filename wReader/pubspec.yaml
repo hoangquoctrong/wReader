@@ -43,6 +43,9 @@ dependencies:
   sqflite: ^2.0.0+4
   pull_to_refresh: ^2.0.0
   url_launcher: ^6.0.17
+  material_dialogs: ^1.1.1
+  awesome_dialog: ^2.1.1
+  restart_app: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -61,6 +64,7 @@ dev_dependencies:
 # The following section is specific to Flutter.
 flutter:
 
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -70,7 +74,8 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
-
+  assets:
+      - assets/logo/truyentranh-net.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

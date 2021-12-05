@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:wreader/components/FavoriteScreenComponents/favorite.dart';
-import 'package:wreader/components/FavoriteScreenComponents/favoriteDAO.dart';
+import 'package:wreader/components/Databases/favorite.dart';
+import 'package:wreader/components/Databases/favoriteDAO.dart';
 import 'package:wreader/components/HomeScreenComponents/manga_cards.dart';
 import 'package:wreader/constants/constants.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -86,6 +86,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                             mangaImg: mangaList![i].mangaImg,
                             mangaTitle: mangaList![i].mangaTitle,
                             mangaUrl: mangaList![i].mangaLink,
+                            sourceID: mangaList![i].sourceID,
                           ),
                       ],
                     ),

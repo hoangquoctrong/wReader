@@ -2,15 +2,17 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:wreader/Screen/content_screen.dart';
-import 'package:wreader/components/FavoriteScreenComponents/favorite.dart';
-import 'package:wreader/components/FavoriteScreenComponents/favoriteDAO.dart';
-import 'package:wreader/components/HistoryScreenComponents/history.dart';
+import 'package:wreader/components/Databases/favorite.dart';
+import 'package:wreader/components/Databases/favoriteDAO.dart';
+import 'package:wreader/components/Databases/history.dart';
 import 'package:wreader/components/HomeScreenComponents/detailScreen/manga_chapters.dart';
+import 'package:wreader/constants/constants.dart';
 import 'package:wreader/widgets/VertDivider.dart';
 import 'package:wreader/widgets/manga_info.dart';
 
 class MangaInfo extends StatefulWidget {
   final String? mangaImg, mangaStatus, mangaAuthor, mangaLink, mangaTitle;
+  final int sourceID;
   final List<Map<String, dynamic>>? mangaChapter;
 
   final bool? isFavorite;
@@ -23,6 +25,7 @@ class MangaInfo extends StatefulWidget {
     this.mangaTitle,
     this.isFavorite,
     this.mangaChapter,
+    required this.sourceID,
   }) : super(key: key);
 
   @override
@@ -50,6 +53,7 @@ class _MangaInfoState extends State<MangaInfo> {
         mangaAuthor: widget.mangaAuthor.toString(),
         mangaTitle: widget.mangaTitle.toString(),
         id: id,
+        sourceID: widget.sourceID,
       );
       await FavoriteDatabase.instance.create(favorite);
       setState(() {});
@@ -78,6 +82,7 @@ class _MangaInfoState extends State<MangaInfo> {
             ['attributes']['href'],
         mangaChapterIndex: widget.mangaChapter!.length - 1,
         id: DateTime.now().millisecondsSinceEpoch,
+        sourceID: Constants.id,
       );
       print(history!.mangaChapter);
       print(history!.mangaChapterLink);
@@ -170,16 +175,16 @@ class _MangaInfoState extends State<MangaInfo> {
                     Navigator.of(context).push(
                       new MaterialPageRoute(
                         builder: (BuildContext context) => new ContentScreen(
-                          mangaLink: history!.mangaLink,
-                          mangaChapter: widget.mangaChapter,
-                          index: history!.mangaChapterIndex,
-                          mangaAuthor: history!.mangaAuthor,
-                          mangaDesc: history!.mangaDesc,
-                          mangaGenres: history!.mangaGenres,
-                          mangaImg: history!.mangaImg,
-                          mangaTitle: history!.mangaTitle,
-                          mangaChapterLink: history!.mangaChapterLink,
-                        ),
+                            mangaLink: history!.mangaLink,
+                            mangaChapter: widget.mangaChapter,
+                            index: history!.mangaChapterIndex,
+                            mangaAuthor: history!.mangaAuthor,
+                            mangaDesc: history!.mangaDesc,
+                            mangaGenres: history!.mangaGenres,
+                            mangaImg: history!.mangaImg,
+                            mangaTitle: history!.mangaTitle,
+                            mangaChapterLink: history!.mangaChapterLink,
+                            id: history!.sourceID),
                       ),
                     );
                   },
@@ -214,6 +219,7 @@ class _MangaInfoState extends State<MangaInfo> {
                         mangaLink: widget.mangaLink.toString(),
                         mangaTitle: widget.mangaTitle.toString(),
                         mangaChapter: widget.mangaChapter,
+                        sourceID: history!.sourceID,
                       ),
                     ));
                   },

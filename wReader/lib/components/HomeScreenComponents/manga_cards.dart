@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:swipe_back_detector/swipe_back_detector.dart';
 import 'package:wreader/Screen/detail_screen.dart';
-import 'package:wreader/components/FavoriteScreenComponents/favorite.dart';
-import 'package:wreader/components/FavoriteScreenComponents/favoriteDAO.dart';
 import 'package:wreader/constants/constants.dart';
 
 class mangaCard extends StatefulWidget {
   final String? mangaImg, mangaTitle, mangaUrl;
-  const mangaCard({Key? key, this.mangaImg, this.mangaTitle, this.mangaUrl})
+  final int sourceID;
+  const mangaCard(
+      {Key? key,
+      this.mangaImg,
+      this.mangaTitle,
+      this.mangaUrl,
+      required this.sourceID})
       : super(key: key);
 
   @override
@@ -15,6 +19,7 @@ class mangaCard extends StatefulWidget {
 }
 
 class _mangaCardState extends State<mangaCard> {
+  String? mangaImg;
   bool isLoading = false;
   bool isFavorite = false;
   void navigatorPush(BuildContext context, Widget page) {
@@ -40,6 +45,24 @@ class _mangaCardState extends State<mangaCard> {
   }
 
   @override
+  void initState() {
+    switch (widget.sourceID) {
+      case 2:
+        {
+          mangaImg = widget.mangaImg!;
+          print(mangaImg);
+          break;
+        }
+      default:
+        {
+          mangaImg = widget.mangaImg!;
+        }
+    }
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     return Container(
@@ -51,9 +74,10 @@ class _mangaCardState extends State<mangaCard> {
             navigatorPush(
               context,
               DetailScreen(
-                mangaImg: widget.mangaImg,
+                mangaImg: mangaImg,
                 mangaLink: widget.mangaUrl,
                 mangaTitle: widget.mangaTitle,
+                sourceID: widget.sourceID,
               ),
             );
           },
@@ -65,7 +89,7 @@ class _mangaCardState extends State<mangaCard> {
                     child: ClipRRect(
                   borderRadius: BorderRadius.circular(10.0),
                   child: Image.network(
-                    widget.mangaImg.toString(),
+                    mangaImg!,
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;

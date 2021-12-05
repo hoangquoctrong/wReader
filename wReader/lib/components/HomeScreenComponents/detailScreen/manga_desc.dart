@@ -20,7 +20,7 @@ class _MangaDescState extends State<MangaDesc> {
   }
 
   Widget overMultiLine() {
-    return (widget.mangaDesc!.trim()).split(" ").length > 40
+    return (widget.mangaDesc!.trim()).split(" ").length > 38
         ? GestureDetector(
             onTap: ToggleRead,
             child: Text(
@@ -39,16 +39,16 @@ class _MangaDescState extends State<MangaDesc> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Mô tả",
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Text(
+              "Mô tả",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
             ),
-          ),
-          SizedBox(
-            height: 10,
           ),
           Text(
             widget.mangaDesc!,
@@ -60,16 +60,16 @@ class _MangaDescState extends State<MangaDesc> {
             overflow: TextOverflow.ellipsis,
           ),
           overMultiLine(),
-          Text(
-            "Thể loại",
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, bottom: 10),
+            child: Text(
+              "Thể loại",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
             ),
-          ),
-          SizedBox(
-            height: 10,
           ),
           Text(
             widget.mangaGenres!,

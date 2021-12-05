@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wreader/Screen/detail_screen.dart';
-import 'package:wreader/components/FavoriteScreenComponents/favorite.dart';
-import 'package:wreader/components/FavoriteScreenComponents/favoriteDAO.dart';
-import 'package:wreader/components/HistoryScreenComponents/history.dart';
+import 'package:wreader/components/Databases/favoriteDAO.dart';
+import 'package:wreader/components/Databases/history.dart';
 import 'package:wreader/constants/constants.dart';
 import 'package:wreader/widgets/HorDivider.dart';
 
@@ -53,6 +52,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         mangaLink: mangaList![index].mangaLink,
                         mangaImg: mangaList![index].mangaImg,
                         mangaTitle: mangaList![index].mangaTitle,
+                        sourceID: mangaList![index].sourceID,
                       ),
                     ),
                   );
@@ -61,47 +61,48 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Expanded(
-                        child: Row(
-                          children: [
-                            Container(
-                              width: screenSize.width * 0.12,
-                              child: Image.network(
-                                mangaList![index].mangaImg,
-                                fit: BoxFit.cover,
-                              ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: screenSize.width * 0.12,
+                            child: Image.network(
+                              mangaList![index].mangaImg,
+                              fit: BoxFit.cover,
                             ),
-                            SizedBox(
-                              width: screenSize.width * 0.05,
-                            ),
-                            Container(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
+                          ),
+                          SizedBox(
+                            width: screenSize.width * 0.05,
+                          ),
+                          Container(
+                            width: screenSize.width * 0.75,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  child: Text(
                                     mangaList![index].mangaTitle,
-                                    overflow: TextOverflow.clip,
-                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
                                     style: TextStyle(fontSize: 20),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 10),
-                                    child: Text(
-                                      mangaList![index].mangaChapter,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Colors.grey,
-                                      ),
-                                      textAlign: TextAlign.left,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 10),
+                                  child: Text(
+                                    mangaList![index].mangaChapter,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.grey,
                                     ),
+                                    textAlign: TextAlign.left,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                     HorDivider(),

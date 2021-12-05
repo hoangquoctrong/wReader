@@ -20,18 +20,42 @@ class _SearchContentState extends State<SearchContent> {
     String search = widget.query;
     search.replaceAll(" ", "+");
     final webscraper = WebScraper(Constants.baseUrl);
-    if (await webscraper.loadWebPage('search?q=' + search)) {
-      mangaList = webscraper.getElement(
-        'div.content > div.box > div.card-list > div.card > a > img.card-img',
-        ['src', 'alt'],
-      );
-      mangaUrlList = webscraper.getElement(
-        'div.content > div.box > div.card-list > div.card > a',
-        ['href'],
-      );
-      setState(() {
-        isLoading = false;
-      });
+    print(Constants.baseUrl);
+    switch (Constants.id) {
+      case 1:
+        {
+          if (await webscraper.loadWebPage('search?q=' + search)) {
+            mangaList = webscraper.getElement(
+              'div.content > div.box > div.card-list > div.card > a > img.card-img',
+              ['src', 'alt'],
+            );
+            mangaUrlList = webscraper.getElement(
+              'div.content > div.box > div.card-list > div.card > a',
+              ['href'],
+            );
+            setState(() {
+              isLoading = false;
+            });
+          }
+          break;
+        }
+      default:
+        {
+          if (await webscraper.loadWebPage('tim-truyen?keyword=' + search)) {
+            mangaList = webscraper.getElement(
+              'div.Module.Module-170 > div.ModuleContent > div.items > div.row > div.item > figure.clearfix > div.image > a > img.lazy',
+              ['src', 'alt'],
+            );
+            print(mangaList);
+            mangaUrlList = webscraper.getElement(
+              'div.Module.Module-170 > div.ModuleContent > div.items > div.row > div.item > figure.clearfix > div.image > a > img.lazy',
+              ['href'],
+            );
+            setState(() {
+              isLoading = false;
+            });
+          }
+        }
     }
   }
 
@@ -56,8 +80,19 @@ class _SearchContentState extends State<SearchContent> {
                     new MaterialPageRoute(
                       builder: (BuildContext context) => new DetailScreen(
                         mangaLink: mangaUrlList![index]['attributes']['href'],
-                        mangaImg: mangaList![index]['attributes']['src'],
-                        mangaTitle: mangaList![index]['attributes']['alt'],
+                        mangaImg: Constants.id == 1
+                            ? mangaList![index]['attributes']['src']
+                            : "https:" + mangaList![index]['attributes']['src'],
+                        mangaTitle: Constants.id == 1
+                            ? mangaList![index]['attributes']['alt']
+                            : mangaList![index]['attributes']['alt']
+                                .toString()
+                                .substring(
+                                    13,
+                                    mangaList![index]['attributes']['alt']
+                                        .toString()
+                                        .length),
+                        sourceID: Constants.id,
                       ),
                     ),
                   );
@@ -70,17 +105,29 @@ class _SearchContentState extends State<SearchContent> {
                         Container(
                           width: screenSize.width * 0.12,
                           child: Image.network(
-                            mangaList![index]['attributes']['src'],
+                            Constants.id == 1
+                                ? mangaList![index]['attributes']['src']
+                                : "https:" +
+                                    mangaList![index]['attributes']['src'],
                             fit: BoxFit.cover,
                           ),
                         ),
                         SizedBox(
                           width: screenSize.width * 0.05,
                         ),
-                        Flexible(
+                        Container(
+                          width: screenSize.width * 0.75,
                           child: Text(
-                            mangaList![index]['attributes']['alt'],
-                            overflow: TextOverflow.clip,
+                            Constants.id == 1
+                                ? mangaList![index]['attributes']['alt']
+                                : mangaList![index]['attributes']['alt']
+                                    .toString()
+                                    .substring(
+                                        13,
+                                        mangaList![index]['attributes']['alt']
+                                            .toString()
+                                            .length),
+                            overflow: TextOverflow.ellipsis,
                             maxLines: 2,
                             style: TextStyle(fontSize: 20),
                           ),

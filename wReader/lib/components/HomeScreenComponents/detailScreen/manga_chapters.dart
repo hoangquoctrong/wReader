@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:web_scraper/web_scraper.dart';
 import 'package:wreader/Screen/content_screen.dart';
-import 'package:wreader/components/FavoriteScreenComponents/favoriteDAO.dart';
-import 'package:wreader/components/HistoryScreenComponents/history.dart';
+import 'package:wreader/components/Databases/favoriteDAO.dart';
+import 'package:wreader/components/Databases/history.dart';
 import 'package:wreader/constants/constants.dart';
 import 'package:wreader/widgets/HorDivider.dart';
 
@@ -14,6 +14,7 @@ class MangaChapters extends StatefulWidget {
   final String mangaDesc;
   final String mangaGenres;
   final String mangaAuthor;
+  final int sourceID;
   final List<Map<String, dynamic>>? mangaChapter;
   const MangaChapters({
     Key? key,
@@ -24,6 +25,7 @@ class MangaChapters extends StatefulWidget {
     required this.mangaGenres,
     required this.mangaAuthor,
     this.mangaChapter,
+    required this.sourceID,
   }) : super(key: key);
 
   @override
@@ -45,6 +47,7 @@ class _MangaChaptersState extends State<MangaChapters> {
       mangaChapter: mangaChapter,
       mangaChapterLink: mangaChapterLink,
       mangaChapterIndex: index,
+      sourceID: widget.sourceID,
       id: DateTime.now().millisecondsSinceEpoch,
     );
     if (await FavoriteDatabase.instance
@@ -111,6 +114,7 @@ class _MangaChaptersState extends State<MangaChapters> {
                                         mangaChapterLink:
                                             widget.mangaChapter![index]
                                                 ['attributes']['href'],
+                                        id: widget.sourceID,
                                       ),
                                     ),
                                   ),

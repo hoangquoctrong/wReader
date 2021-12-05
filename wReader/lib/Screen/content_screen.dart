@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:web_scraper/web_scraper.dart';
-import 'package:wreader/components/FavoriteScreenComponents/favoriteDAO.dart';
-import 'package:wreader/components/HistoryScreenComponents/history.dart';
+import 'package:wreader/components/Databases/favoriteDAO.dart';
+import 'package:wreader/components/Databases/history.dart';
 import 'package:wreader/constants/constants.dart';
 import 'package:wreader/widgets/HorDivider.dart';
 
@@ -17,6 +17,7 @@ class ContentScreen extends StatefulWidget {
   final String mangaAuthor;
   final int index;
   final String mangaChapterLink;
+  final int id;
   final List<Map<String, dynamic>>? mangaChapter;
   const ContentScreen({
     Key? key,
@@ -29,6 +30,7 @@ class ContentScreen extends StatefulWidget {
     required this.mangaGenres,
     required this.mangaAuthor,
     required this.mangaChapterLink,
+    required this.id,
   }) : super(key: key);
 
   @override
@@ -60,17 +62,17 @@ class _ContentScreenState extends State<ContentScreen> {
 
   void SaveIntoDB(String mangaChapterLink, int index) async {
     History history = new History(
-      mangaTitle: widget.mangaTitle,
-      mangaLink: widget.mangaLink,
-      mangaImg: widget.mangaImg,
-      mangaDesc: widget.mangaDesc,
-      mangaGenres: widget.mangaGenres,
-      mangaAuthor: widget.mangaAuthor,
-      mangaChapter: widget.mangaChapter![index]['title'],
-      mangaChapterLink: mangaChapterLink,
-      mangaChapterIndex: index,
-      id: DateTime.now().millisecondsSinceEpoch,
-    );
+        mangaTitle: widget.mangaTitle,
+        mangaLink: widget.mangaLink,
+        mangaImg: widget.mangaImg,
+        mangaDesc: widget.mangaDesc,
+        mangaGenres: widget.mangaGenres,
+        mangaAuthor: widget.mangaAuthor,
+        mangaChapter: widget.mangaChapter![index]['title'],
+        mangaChapterLink: mangaChapterLink,
+        mangaChapterIndex: index,
+        id: DateTime.now().millisecondsSinceEpoch,
+        sourceID: widget.id);
     if (await FavoriteDatabase.instance
             .checkHistory(widget.mangaLink.toString()) ==
         true) {
@@ -133,27 +135,55 @@ class _ContentScreenState extends State<ContentScreen> {
       dataFetched = false;
     });
 
-    String tempBaseUrl = mangaUrl!.split(".net")[0] + ".net";
-    String tempRoute = mangaUrl!.split(".net")[1];
-    final webscraper = WebScraper(tempBaseUrl);
+    switch (widget.id) {
+      case 2:
+        {
+          String tempBaseUrl = mangaUrl!.split(".com")[0] + ".com";
+          String tempRoute = mangaUrl!.split(".com")[1];
+          final webscraper = WebScraper(tempBaseUrl);
 
-    if (await webscraper.loadWebPage(tempRoute)) {
-      contentPages = webscraper.getElement(
-        'div.manga-reading-box > div.page-chapter > img',
-        ['src'],
-      );
-      chapterChanges = webscraper.getElement(
-        'div.header-chapter-selection > a',
-        ['href', 'class'],
-      );
-      chapterTitle = webscraper.getElement(
-        'div.section.section-nav-chapter > div.container > div.header-section-nav > ul > li',
-        ['title'],
-      );
+          if (await webscraper.loadWebPage(tempRoute)) {
+            contentPages = webscraper.getElement(
+              'div.page-chapter > img',
+              ['data-original'],
+            );
+            chapterChanges = webscraper.getElement(
+              'div.chapter-nav-bottom.text-center.mrt5.mrb5 > a',
+              ['href', 'class'],
+            );
+            print(chapterChanges);
 
-      setState(() {
-        dataFetched = true;
-      });
+            setState(() {
+              dataFetched = true;
+            });
+          }
+          break;
+        }
+      default:
+        {
+          String tempBaseUrl = mangaUrl!.split(".net")[0] + ".net";
+          String tempRoute = mangaUrl!.split(".net")[1];
+          final webscraper = WebScraper(tempBaseUrl);
+
+          if (await webscraper.loadWebPage(tempRoute)) {
+            contentPages = webscraper.getElement(
+              'div.manga-reading-box > div.page-chapter > img',
+              ['src'],
+            );
+            chapterChanges = webscraper.getElement(
+              'div.reading-control > div.chapter-nav > a',
+              ['href', 'class'],
+            );
+            chapterTitle = webscraper.getElement(
+              'div.section.section-nav-chapter > div.container > div.header-section-nav > ul > li',
+              ['title'],
+            );
+            print(chapterChanges);
+            setState(() {
+              dataFetched = true;
+            });
+          }
+        }
     }
   }
 
@@ -164,6 +194,7 @@ class _ContentScreenState extends State<ContentScreen> {
     mangaUrl = widget.mangaChapterLink;
     print("Manga URL : " + mangaUrl!);
     indexChap = widget.index;
+    print(widget.id);
     getContent();
   }
 
@@ -270,12 +301,21 @@ class _ContentScreenState extends State<ContentScreen> {
                       shrinkWrap: true,
                       itemCount: contentPages!.length,
                       itemBuilder: (context, index) {
-                        return ClipRRect(
-                          child: CachedNetworkImage(
-                            imageUrl: contentPages![index]['attributes']['src']
-                                .toString()
-                                .trim(),
-                            fit: BoxFit.fitWidth,
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: ClipRRect(
+                            child: CachedNetworkImage(
+                              imageUrl: widget.id == 2
+                                  ? "https:" +
+                                      contentPages![index]['attributes']
+                                              ['data-original']
+                                          .toString()
+                                          .trim()
+                                  : contentPages![index]['attributes']['src']
+                                      .toString()
+                                      .trim(),
+                              fit: BoxFit.fitWidth,
+                            ),
                           ),
                         );
 
