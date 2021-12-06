@@ -77,10 +77,8 @@ class _ContentScreenState extends State<ContentScreen> {
             .checkHistory(widget.mangaLink.toString()) ==
         true) {
       await FavoriteDatabase.instance.updateHistory(history);
-      print("run update");
     } else {
       await FavoriteDatabase.instance.createHistory(history);
-      print("run create");
     }
     print(widget.mangaLink.toString());
   }
@@ -94,40 +92,91 @@ class _ContentScreenState extends State<ContentScreen> {
   }
 
   Future<void> PreviousChap() async {
-    if (chapterChanges![0]['attributes']['class'] == "previous-chapter" &&
-        chapterChanges!.length == 1) {
-      Fluttertoast.showToast(
-        msg: "Đây là chap đầu tiên",
-        toastLength: Toast.LENGTH_SHORT,
-      );
-    } else if (chapterChanges![0]['attributes']['class'] == "next-chapter") {
-      mangaUrl = chapterChanges![0]['attributes']['href'];
-      indexChap = indexChap! + 1;
-      SaveIntoDB(mangaUrl.toString(), indexChap!);
-      getContent();
-    } else {
-      mangaUrl = chapterChanges![1]['attributes']['href'];
-      indexChap = indexChap! + 1;
-      SaveIntoDB(mangaUrl.toString(), indexChap!);
-      getContent();
+    switch (widget.id) {
+      case 1:
+        {
+          if (chapterChanges![0]['attributes']['class'] == "btn next_page" &&
+              chapterChanges!.length == 1) {
+            Fluttertoast.showToast(
+              msg: "Đây là chap đầu tiên",
+              toastLength: Toast.LENGTH_SHORT,
+            );
+          } else {
+            mangaUrl = chapterChanges![0]['attributes']['href'];
+            indexChap = indexChap! + 1;
+            SaveIntoDB(mangaUrl.toString(), indexChap!);
+            getContent();
+          }
+          setState(() {});
+          break;
+        }
+      default:
+        {
+          if (chapterChanges![0]['attributes']['class'] == "previous-chapter" &&
+              chapterChanges!.length == 1) {
+            Fluttertoast.showToast(
+              msg: "Đây là chap đầu tiên",
+              toastLength: Toast.LENGTH_SHORT,
+            );
+          } else if (chapterChanges![0]['attributes']['class'] ==
+              "next-chapter") {
+            mangaUrl = chapterChanges![0]['attributes']['href'];
+            indexChap = indexChap! + 1;
+            SaveIntoDB(mangaUrl.toString(), indexChap!);
+            getContent();
+          } else {
+            mangaUrl = chapterChanges![1]['attributes']['href'];
+            indexChap = indexChap! + 1;
+            SaveIntoDB(mangaUrl.toString(), indexChap!);
+            getContent();
+          }
+          setState(() {});
+        }
     }
-    setState(() {});
   }
 
   Future<void> NextChap() async {
-    if (chapterChanges![0]['attributes']['class'] == "next-chapter" &&
-        chapterChanges!.length == 1) {
-      Fluttertoast.showToast(
-        msg: "Đây là chap cuối cùng",
-        toastLength: Toast.LENGTH_SHORT,
-      );
-    } else {
-      mangaUrl = chapterChanges![0]['attributes']['href'];
-      indexChap = indexChap! - 1;
-      SaveIntoDB(mangaUrl.toString(), indexChap!);
-      getContent();
+    switch (widget.id) {
+      case 1:
+        {
+          if (chapterChanges![0]['attributes']['class'] == "btn prev_page" &&
+              chapterChanges!.length == 1) {
+            Fluttertoast.showToast(
+              msg: "Đây là chap cuối cùng",
+              toastLength: Toast.LENGTH_SHORT,
+            );
+          } else if (chapterChanges![0]['attributes']['class'] ==
+              "btn next_page") {
+            mangaUrl = chapterChanges![0]['attributes']['href'];
+            indexChap = indexChap! - 1;
+            SaveIntoDB(mangaUrl.toString(), indexChap!);
+            getContent();
+          } else {
+            mangaUrl = chapterChanges![1]['attributes']['href'];
+            indexChap = indexChap! - 1;
+            SaveIntoDB(mangaUrl.toString(), indexChap!);
+            getContent();
+          }
+          setState(() {});
+          break;
+        }
+      default:
+        {
+          if (chapterChanges![0]['attributes']['class'] == "next-chapter" &&
+              chapterChanges!.length == 1) {
+            Fluttertoast.showToast(
+              msg: "Đây là chap cuối cùng",
+              toastLength: Toast.LENGTH_SHORT,
+            );
+          } else {
+            mangaUrl = chapterChanges![0]['attributes']['href'];
+            indexChap = indexChap! - 1;
+            SaveIntoDB(mangaUrl.toString(), indexChap!);
+            getContent();
+          }
+          setState(() {});
+        }
     }
-    setState(() {});
   }
 
   Future<void> getContent() async {
@@ -136,7 +185,7 @@ class _ContentScreenState extends State<ContentScreen> {
     });
 
     switch (widget.id) {
-      case 2:
+      case 3:
         {
           String tempBaseUrl = mangaUrl!.split(".com")[0] + ".com";
           String tempRoute = mangaUrl!.split(".com")[1];
@@ -149,6 +198,29 @@ class _ContentScreenState extends State<ContentScreen> {
             );
             chapterChanges = webscraper.getElement(
               'div.chapter-nav-bottom.text-center.mrt5.mrb5 > a',
+              ['href', 'class'],
+            );
+            print(chapterChanges);
+
+            setState(() {
+              dataFetched = true;
+            });
+          }
+          break;
+        }
+      case 1:
+        {
+          String tempBaseUrl = mangaUrl!.split(".net")[0] + ".net";
+          String tempRoute = mangaUrl!.split(".net")[1];
+          final webscraper = WebScraper(tempBaseUrl);
+
+          if (await webscraper.loadWebPage(tempRoute)) {
+            contentPages = webscraper.getElement(
+              'div.reading-content > div.page-break > img',
+              ['src'],
+            );
+            chapterChanges = webscraper.getElement(
+              'div.entry-header_wrap > div.select-pagination > div.nav-links > div > a',
               ['href', 'class'],
             );
             print(chapterChanges);
@@ -173,10 +245,6 @@ class _ContentScreenState extends State<ContentScreen> {
             chapterChanges = webscraper.getElement(
               'div.reading-control > div.chapter-nav > a',
               ['href', 'class'],
-            );
-            chapterTitle = webscraper.getElement(
-              'div.section.section-nav-chapter > div.container > div.header-section-nav > ul > li',
-              ['title'],
             );
             print(chapterChanges);
             setState(() {
@@ -305,7 +373,7 @@ class _ContentScreenState extends State<ContentScreen> {
                           padding: const EdgeInsets.only(bottom: 10),
                           child: ClipRRect(
                             child: CachedNetworkImage(
-                              imageUrl: widget.id == 2
+                              imageUrl: widget.id == 3
                                   ? "https:" +
                                       contentPages![index]['attributes']
                                               ['data-original']

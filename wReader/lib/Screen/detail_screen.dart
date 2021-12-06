@@ -35,7 +35,39 @@ class _DetailScreenState extends State<DetailScreen> {
   List<Map<String, dynamic>>? mangaArtist;
   void getMangaInfos() async {
     switch (widget.sourceID) {
-      case 2:
+      case 1:
+        {
+          String tempBaseUrl = widget.mangaLink!.split(".net")[0] + ".net";
+          String tempRoute = widget.mangaLink!.split(".net")[1];
+
+          final webscraper = WebScraper(tempBaseUrl);
+          if (await webscraper.loadWebPage(tempRoute)) {
+            mangaDetail = webscraper.getElement(
+              "div.post-content > div.post-content_item > div.summary-content",
+              // "div.detai-info > div.row > div.col-xs-8.col-info > ul.list-info > li.author.row > p",
+              [],
+            );
+            mangaDescList = webscraper.getElement(
+              "div.description-summary > div.summary__content.show-more",
+              [],
+            );
+            print(mangaDescList);
+            mangaChapterList = webscraper.getElement(
+              "ul.list-item.box-list-chapter.limit-height > li.wp-manga-chapter > a",
+              ['href'],
+            );
+            mangaDesc = mangaDescList![0]['title'].toString().trim();
+            mangaAuthor = mangaDetail![1]['title'].toString().trim();
+            mangaGenres = mangaDetail![5]['title'].toString().trim();
+            mangaGenres!.replaceAll("\n", " - ");
+            print("mangaDetail:" + mangaDetail.toString());
+            setState(() {
+              mangaLoaded = true;
+            });
+          }
+          break;
+        }
+      case 3:
         {
           String tempBaseUrl = widget.mangaLink!.split(".com")[0] + ".com";
           String tempRoute = widget.mangaLink!.split(".com")[1];

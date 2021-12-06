@@ -92,6 +92,12 @@ class _MangaInfoState extends State<MangaInfo> {
     }
   }
 
+  void readHistory() async {
+    List<History> readHistory =
+        await FavoriteDatabase.instance.readHistory(widget.mangaLink!);
+    history = readHistory[0];
+  }
+
   @override
   void initState() {
     checkHistory();
@@ -171,7 +177,7 @@ class _MangaInfoState extends State<MangaInfo> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    print(history!.mangaLink);
+                    readHistory();
                     Navigator.of(context).push(
                       new MaterialPageRoute(
                         builder: (BuildContext context) => new ContentScreen(
@@ -190,7 +196,7 @@ class _MangaInfoState extends State<MangaInfo> {
                   },
                   child: MangaInfoBtn(
                     icon: Icons.play_arrow_outlined,
-                    title: "Read",
+                    title: "Đọc",
                   ),
                 ),
                 GestureDetector(
@@ -201,11 +207,11 @@ class _MangaInfoState extends State<MangaInfo> {
                   child: isFavorite!
                       ? MangaInfoBtn(
                           icon: Icons.favorite,
-                          title: "Favorite",
+                          title: "Yêu thích",
                         )
                       : MangaInfoBtn(
                           icon: Icons.favorite_border_outlined,
-                          title: "Favorite",
+                          title: "Yêu thích",
                         ),
                 ),
                 GestureDetector(
@@ -225,7 +231,7 @@ class _MangaInfoState extends State<MangaInfo> {
                   },
                   child: MangaInfoBtn(
                     icon: Icons.menu_open_outlined,
-                    title: "Chapters",
+                    title: "Mục lục",
                   ),
                 ),
               ],

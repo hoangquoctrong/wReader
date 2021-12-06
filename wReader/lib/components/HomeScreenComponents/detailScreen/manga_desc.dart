@@ -40,7 +40,7 @@ class _MangaDescState extends State<MangaDesc> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.only(bottom: 5),
             child: Text(
               "Mô tả",
               style: TextStyle(
@@ -61,7 +61,7 @@ class _MangaDescState extends State<MangaDesc> {
           ),
           overMultiLine(),
           Padding(
-            padding: const EdgeInsets.only(top: 10.0, bottom: 10),
+            padding: const EdgeInsets.only(top: 10.0, bottom: 5),
             child: Text(
               "Thể loại",
               style: TextStyle(

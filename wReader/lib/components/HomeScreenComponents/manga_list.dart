@@ -46,7 +46,34 @@ class _MangaListState extends State<MangaList> {
     });
     final webscraper = WebScraper(Constants.baseUrl);
     switch (Constants.id) {
-      case 2:
+      case 1:
+        {
+          if (await webscraper.loadWebPage("?page=" + page.toString())) {
+            newmangaList = webscraper.getElement(
+                'div.manga-content > div.row.px-2.list-item > div.col-6.col-md-3.badge-pos-1.px-2 > div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a > img.img-responsive',
+                [
+                  'src',
+                  'title',
+                  'data-src',
+                ]);
+            newmangaUrlList = webscraper.getElement(
+              'div.manga-content > div.row.px-2.list-item > div.col-6.col-md-3.badge-pos-1.px-2 > div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a',
+              ['href'],
+            );
+            for (int i = 0; i < newmangaList!.length; i++) {
+              titleList!.add(newmangaList![i]['attributes']['title']);
+              urlList!.add(newmangaUrlList![i]['attributes']['href']);
+              newmangaList![i]['attributes']['src'] == null
+                  ? imgList!.add(newmangaList![i]['attributes']['data-src'])
+                  : imgList!.add(newmangaList![i]['attributes']['src']);
+            }
+            page = 2;
+
+            setState(() {});
+          }
+          break;
+        }
+      case 3:
         {
           if (await webscraper.loadWebPage("")) {
             newmangaList = webscraper.getElement(
@@ -105,7 +132,34 @@ class _MangaListState extends State<MangaList> {
   Future<void> _getMoreData(int index) async {
     final webscraper = WebScraper(Constants.baseUrl);
     switch (Constants.id) {
-      case 2:
+      case 1:
+        {
+          if (await webscraper.loadWebPage("?page=" + page.toString())) {
+            newmangaList = webscraper.getElement(
+                'div.manga-content > div.row.px-2.list-item > div.col-6.col-md-3.badge-pos-1.px-2 > div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a > img.img-responsive',
+                [
+                  'src',
+                  'title',
+                  'data-src',
+                ]);
+            newmangaUrlList = webscraper.getElement(
+              'div.manga-content > div.row.px-2.list-item > div.col-6.col-md-3.badge-pos-1.px-2 > div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a',
+              ['href'],
+            );
+            for (int i = 0; i < newmangaList!.length; i++) {
+              titleList!.add(newmangaList![i]['attributes']['title']);
+              urlList!.add(newmangaUrlList![i]['attributes']['href']);
+              newmangaList![i]['attributes']['src'] == null
+                  ? imgList!.add(newmangaList![i]['attributes']['data-src'])
+                  : imgList!.add(newmangaList![i]['attributes']['src']);
+            }
+            page++;
+
+            setState(() {});
+          }
+          break;
+        }
+      case 3:
         if (await webscraper.loadWebPage("?page=" + page.toString())) {
           newmangaList = webscraper.getElement(
             'div.ModuleContent > div.items > div.row > div.item > figure.clearfix > div.image > a > img.lazy',
@@ -159,6 +213,7 @@ class _MangaListState extends State<MangaList> {
     titleList = widget.titleList;
     imgList = widget.imgList;
     urlList = widget.urlList;
+    print(imgList!.length.toString() + "titleList length");
     // TODO: implement initState
     super.initState();
   }

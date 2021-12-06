@@ -23,6 +23,21 @@ class _SearchContentState extends State<SearchContent> {
     print(Constants.baseUrl);
     switch (Constants.id) {
       case 1:
+        if (await webscraper.loadWebPage('search?s=' + search)) {
+          mangaList = webscraper.getElement(
+            'div.item-thumb.hover-details.c-image-hover > a > img.img-responsive',
+            ['src', 'alt'],
+          );
+          mangaUrlList = webscraper.getElement(
+            'div.item-thumb.hover-details.c-image-hover > a',
+            ['href'],
+          );
+          setState(() {
+            isLoading = false;
+          });
+        }
+        break;
+      case 2:
         {
           if (await webscraper.loadWebPage('search?q=' + search)) {
             mangaList = webscraper.getElement(

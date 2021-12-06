@@ -61,7 +61,32 @@ class _HomeScreenState extends State<HomeScreen> {
     print(Constants.baseUrl);
     print(Constants.id);
     switch (Constants.id) {
-      case 2:
+      case 1:
+        if (await webscraper.loadWebPage("")) {
+          mangaList = webscraper.getElement(
+              'div.manga-content > div.row.px-2.list-item > div.col-6.col-md-3.badge-pos-1.px-2 > div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a > img.img-responsive',
+              [
+                'src',
+                'title',
+                'data-src',
+              ]);
+          mangaUrlList = webscraper.getElement(
+            'div.manga-content > div.row.px-2.list-item > div.col-6.col-md-3.badge-pos-1.px-2 > div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a',
+            ['href'],
+          );
+          for (int i = 0; i < mangaList!.length; i++) {
+            titleList!.add(mangaList![i]['attributes']['title']);
+            urlList!.add(mangaUrlList![i]['attributes']['href']);
+            mangaList![i]['attributes']['src'] == null
+                ? imgList!.add(mangaList![i]['attributes']['data-src'])
+                : imgList!.add(mangaList![i]['attributes']['src']);
+          }
+          setState(() {
+            mangaLoaded = true;
+          });
+        }
+        break;
+      case 3:
         {
           if (await webscraper.loadWebPage("")) {
             mangaList = webscraper.getElement(
@@ -82,7 +107,6 @@ class _HomeScreenState extends State<HomeScreen> {
               imgList!
                   .add("https:" + mangaList![i]['attributes']['data-original']);
             }
-            print(imgList);
 
             setState(() {
               mangaLoaded = true;
@@ -124,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> checkEmpty() async {
     if (ids!.isEmpty) {
       FavoriteDatabase.instance
-          .createID(ID(id: 1, source: "https://truyentranh.net/"));
+          .createID(ID(id: 1, source: "https://saytruyen.net/"));
     }
     ids = await FavoriteDatabase.instance.readAllID();
   }
@@ -138,28 +162,34 @@ class _HomeScreenState extends State<HomeScreen> {
       case "https://truyentranh.net/":
         {
           Constants.baseUrl = "https://truyentranh.net/";
-          Constants.id = 1;
+          Constants.id = 2;
           break;
         }
       case "http://www.nettruyenpro.com/":
         {
           Constants.baseUrl = "http://www.nettruyenpro.com/";
-          Constants.id = 2;
+          Constants.id = 3;
           break;
         }
       default:
-        {}
+        {
+          Constants.baseUrl = "https://saytruyen.net/";
+          Constants.id = 1;
+        }
     }
     print(ids![0].source);
   }
 
   Future<void> updateID(int id) async {
-    if (id == 1) {
+    if (id == 2) {
       await FavoriteDatabase.instance
           .updateID(ID(id: 1, source: "https://truyentranh.net/"));
-    } else if (id == 2) {
+    } else if (id == 3) {
       await FavoriteDatabase.instance
           .updateID(ID(id: 1, source: "http://www.nettruyenpro.com/"));
+    } else {
+      await FavoriteDatabase.instance
+          .updateID(ID(id: 1, source: "https://saytruyen.net/"));
     }
   }
 
@@ -180,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
         SimpleDialogItem(
           icon: Icons.link,
           color: Colors.blue,
-          text: 'TruyenTranh.net',
+          text: 'Saytruyen.net',
           onPressed: () {
             setState(() {
               mangaLoaded = false;
@@ -193,12 +223,25 @@ class _HomeScreenState extends State<HomeScreen> {
         SimpleDialogItem(
           icon: Icons.link,
           color: Colors.blue,
-          text: 'Nettruyen',
+          text: 'Truyentranh.net',
           onPressed: () {
             setState(() {
               mangaLoaded = false;
             });
             updateID(2).then((value) => Restart.restartApp());
+
+            Navigator.pop(context);
+          },
+        ),
+        SimpleDialogItem(
+          icon: Icons.link,
+          color: Colors.blue,
+          text: 'Nettruyen',
+          onPressed: () {
+            setState(() {
+              mangaLoaded = false;
+            });
+            updateID(3).then((value) => Restart.restartApp());
 
             Navigator.pop(context);
           },
@@ -325,12 +368,12 @@ class Search extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    return SearchContent(query: query);
+    return query == "" ? Container() : SearchContent(query: query);
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return query == "" ? Container() : SearchContent(query: query);
+    return Container();
   }
 
   Widget buildSuggestionsSuccess(Size screenSize) {
