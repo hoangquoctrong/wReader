@@ -66,20 +66,9 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                         Center(
                           child: isLoading
                               ? CircularProgressIndicator()
-                              : SizedBox(),
-                        ),
-                        Container(
-                          width: double.infinity,
-                          height: 30,
-                          padding: EdgeInsets.only(left: 10),
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "Yêu thích",
-                            style: TextStyle(
-                              fontSize: 23,
-                              color: Colors.white,
-                            ),
-                          ),
+                              : SizedBox(
+                                  height: 10,
+                                ),
                         ),
                         for (int i = 0; i < mangaList!.length; i++)
                           mangaCard(

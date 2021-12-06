@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:web_scraper/web_scraper.dart';
 import 'package:wreader/Screen/content_screen.dart';
+import 'package:wreader/Screen/content_screen_read.dart';
 import 'package:wreader/components/Databases/favoriteDAO.dart';
 import 'package:wreader/components/Databases/history.dart';
 import 'package:wreader/constants/constants.dart';
@@ -94,30 +95,67 @@ class _MangaChaptersState extends State<MangaChapters> {
                               color: Constants.darkgray,
                               child: InkWell(
                                 onTap: () => {
-                                  SaveIntoDB(
-                                      widget.mangaChapter![index]['title'],
-                                      widget.mangaChapter![index]['attributes']
-                                          ['href'],
-                                      index),
-                                  Navigator.of(context).push(
-                                    new MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          new ContentScreen(
-                                        mangaLink: widget.mangaLink,
-                                        mangaChapter: widget.mangaChapter,
-                                        index: index,
-                                        mangaAuthor: widget.mangaAuthor,
-                                        mangaDesc: widget.mangaDesc,
-                                        mangaGenres: widget.mangaGenres,
-                                        mangaImg: widget.mangaImg,
-                                        mangaTitle: widget.mangaTitle,
-                                        mangaChapterLink:
-                                            widget.mangaChapter![index]
-                                                ['attributes']['href'],
-                                        id: widget.sourceID,
-                                      ),
-                                    ),
-                                  ),
+                                  widget.sourceID == 4
+                                      ? {
+                                          SaveIntoDB(
+                                              widget.mangaChapter![index]
+                                                  ['title'],
+                                              "https://ln.hako.re" +
+                                                  widget.mangaChapter![index]
+                                                      ['attributes']['href'],
+                                              index),
+                                          Navigator.of(context).push(
+                                            new MaterialPageRoute(
+                                              builder: (BuildContext context) =>
+                                                  new ContentScreenRead(
+                                                mangaLink: widget.mangaLink,
+                                                mangaChapter:
+                                                    widget.mangaChapter,
+                                                index: index,
+                                                mangaAuthor: widget.mangaAuthor,
+                                                mangaDesc: widget.mangaDesc,
+                                                mangaGenres: widget.mangaGenres,
+                                                mangaImg: widget.mangaImg,
+                                                mangaTitle: widget.mangaTitle,
+                                                mangaChapterLink:
+                                                    "https://ln.hako.re" +
+                                                        widget.mangaChapter![
+                                                                    index]
+                                                                ['attributes']
+                                                            ['href'],
+                                                id: widget.sourceID,
+                                              ),
+                                            ),
+                                          )
+                                        }
+                                      : {
+                                          SaveIntoDB(
+                                              widget.mangaChapter![index]
+                                                  ['title'],
+                                              widget.mangaChapter![index]
+                                                  ['attributes']['href'],
+                                              index),
+                                          Navigator.of(context).push(
+                                            new MaterialPageRoute(
+                                              builder: (BuildContext context) =>
+                                                  new ContentScreen(
+                                                mangaLink: widget.mangaLink,
+                                                mangaChapter:
+                                                    widget.mangaChapter,
+                                                index: index,
+                                                mangaAuthor: widget.mangaAuthor,
+                                                mangaDesc: widget.mangaDesc,
+                                                mangaGenres: widget.mangaGenres,
+                                                mangaImg: widget.mangaImg,
+                                                mangaTitle: widget.mangaTitle,
+                                                mangaChapterLink:
+                                                    widget.mangaChapter![index]
+                                                        ['attributes']['href'],
+                                                id: widget.sourceID,
+                                              ),
+                                            ),
+                                          ),
+                                        }
                                 },
                                 child: Align(
                                   alignment: Alignment.centerLeft,

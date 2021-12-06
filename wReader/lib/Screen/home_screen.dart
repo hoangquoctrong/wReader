@@ -114,6 +114,31 @@ class _HomeScreenState extends State<HomeScreen> {
           }
           break;
         }
+      case 4:
+        {
+          if (await webscraper
+              .loadWebPage("danh-sach?truyendich=1&sapxep=capnhat")) {
+            mangaList = webscraper.getElement(
+                'main.row > div.thumb-item-flow.col-4.col-md-3.col-lg-2 > div.thumb-wrapper.ln-tooltip > a > div.a6-ratio > div.content',
+                [
+                  'data-bg',
+                ]);
+            mangaUrlList = webscraper.getElement(
+              'main.row > div.thumb-item-flow.col-4.col-md-3.col-lg-2 > div.thumb_attr.series-title > a',
+              ['href'],
+            );
+            for (int i = 0; i < mangaList!.length; i++) {
+              titleList!.add(mangaUrlList![i]['title']);
+              urlList!.add("https://ln.hako.re" +
+                  mangaUrlList![i]['attributes']['href']);
+              imgList!.add(mangaList![i]['attributes']['data-bg']);
+            }
+            setState(() {
+              mangaLoaded = true;
+            });
+          }
+          break;
+        }
       default:
         {
           if (await webscraper.loadWebPage('comic?page=1/')) {
@@ -159,6 +184,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void checkID() {
     switch (ids![0].source) {
+      case "https://ln.hako.re/":
+        {
+          Constants.baseUrl = "https://ln.hako.re/";
+          Constants.id = 4;
+          break;
+        }
       case "https://truyentranh.net/":
         {
           Constants.baseUrl = "https://truyentranh.net/";
@@ -181,15 +212,22 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> updateID(int id) async {
-    if (id == 2) {
-      await FavoriteDatabase.instance
-          .updateID(ID(id: 1, source: "https://truyentranh.net/"));
-    } else if (id == 3) {
-      await FavoriteDatabase.instance
-          .updateID(ID(id: 1, source: "http://www.nettruyenpro.com/"));
-    } else {
-      await FavoriteDatabase.instance
-          .updateID(ID(id: 1, source: "https://saytruyen.net/"));
+    switch (id) {
+      case 1:
+        await FavoriteDatabase.instance
+            .updateID(ID(id: 1, source: "https://saytruyen.net/"));
+        break;
+      case 2:
+        await FavoriteDatabase.instance
+            .updateID(ID(id: 1, source: "https://truyentranh.net/"));
+        break;
+      case 3:
+        await FavoriteDatabase.instance
+            .updateID(ID(id: 1, source: "http://www.nettruyenpro.com/"));
+        break;
+      default:
+        await FavoriteDatabase.instance
+            .updateID(ID(id: 1, source: "https://ln.hako.re/"));
     }
   }
 
@@ -210,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
         SimpleDialogItem(
           icon: Icons.link,
           color: Colors.blue,
-          text: 'Saytruyen.net',
+          text: 'Saytruyen.net (Manga)',
           onPressed: () {
             setState(() {
               mangaLoaded = false;
@@ -223,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
         SimpleDialogItem(
           icon: Icons.link,
           color: Colors.blue,
-          text: 'Truyentranh.net',
+          text: 'Truyentranh.net (Manga)',
           onPressed: () {
             setState(() {
               mangaLoaded = false;
@@ -236,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
         SimpleDialogItem(
           icon: Icons.link,
           color: Colors.blue,
-          text: 'Nettruyen',
+          text: 'Nettruyen (Manga)',
           onPressed: () {
             setState(() {
               mangaLoaded = false;
@@ -246,14 +284,19 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.pop(context);
           },
         ),
-        // SimpleDialogItem(
-        //   icon: Icons.add_circle,
-        //   color: Colors.grey,
-        //   text: 'Add account',
-        //   onPressed: () {
-        //     Navigator.pop(context, 'Add account');
-        //   },
-        // ),
+        SimpleDialogItem(
+          icon: Icons.link,
+          color: Colors.blue,
+          text: 'LN.hako.re (Novel)',
+          onPressed: () {
+            setState(() {
+              mangaLoaded = false;
+            });
+            updateID(4).then((value) => Restart.restartApp());
+
+            Navigator.pop(context);
+          },
+        ),
       ],
     );
     return Scaffold(

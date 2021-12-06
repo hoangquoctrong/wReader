@@ -15,13 +15,42 @@ class _SearchContentState extends State<SearchContent> {
   bool isLoading = true;
   List<Map<String, dynamic>>? mangaList;
   List<Map<String, dynamic>>? mangaUrlList;
+  List<String>? titleList = [];
+  List<String>? imgList = [];
+  List<String>? urlList = [];
   searchResult() async {
+    titleList = [];
+    imgList = [];
+    urlList = [];
     isLoading = true;
     String search = widget.query;
     search.replaceAll(" ", "+");
     final webscraper = WebScraper(Constants.baseUrl);
     print(Constants.baseUrl);
     switch (Constants.id) {
+      case 4:
+        {
+          if (await webscraper.loadWebPage('tim-kiem?keywords=' + search)) {
+            mangaList = webscraper.getElement(
+              'div.row > div.thumb-item-flow.col-4.col-md-3.col-lg-2 > div.thumb-wrapper > a > div.a6-ratio > div.content',
+              ['data-bg'],
+            );
+            mangaUrlList = webscraper.getElement(
+              'div.row > div.thumb-item-flow.col-4.col-md-3.col-lg-2 > div.thumb_attr.series-title > a',
+              ['href'],
+            );
+            for (int i = 0; i < mangaList!.length; i++) {
+              titleList!.add(mangaUrlList![i]['title']);
+              urlList!.add("https://ln.hako.re" +
+                  mangaUrlList![i]['attributes']['href']);
+              imgList!.add(mangaList![i]['attributes']['data-bg']);
+            }
+            setState(() {
+              isLoading = false;
+            });
+          }
+          break;
+        }
       case 1:
         if (await webscraper.loadWebPage('search?s=' + search)) {
           mangaList = webscraper.getElement(
@@ -32,6 +61,11 @@ class _SearchContentState extends State<SearchContent> {
             'div.item-thumb.hover-details.c-image-hover > a',
             ['href'],
           );
+          for (int i = 0; i < mangaList!.length; i++) {
+            titleList!.add(mangaList![i]['attributes']['alt']);
+            urlList!.add(mangaUrlList![i]['attributes']['href']);
+            imgList!.add(mangaList![i]['attributes']['src']);
+          }
           setState(() {
             isLoading = false;
           });
@@ -48,6 +82,11 @@ class _SearchContentState extends State<SearchContent> {
               'div.content > div.box > div.card-list > div.card > a',
               ['href'],
             );
+            for (int i = 0; i < mangaList!.length; i++) {
+              titleList!.add(mangaList![i]['attributes']['alt']);
+              urlList!.add(mangaUrlList![i]['attributes']['href']);
+              imgList!.add(mangaList![i]['attributes']['src']);
+            }
             setState(() {
               isLoading = false;
             });
@@ -61,11 +100,20 @@ class _SearchContentState extends State<SearchContent> {
               'div.Module.Module-170 > div.ModuleContent > div.items > div.row > div.item > figure.clearfix > div.image > a > img.lazy',
               ['src', 'alt'],
             );
-            print(mangaList);
             mangaUrlList = webscraper.getElement(
               'div.Module.Module-170 > div.ModuleContent > div.items > div.row > div.item > figure.clearfix > div.image > a > img.lazy',
               ['href'],
             );
+            for (int i = 0; i < mangaList!.length; i++) {
+              titleList!.add(mangaList![i]['attributes']['alt']
+                  .toString()
+                  .substring(13,
+                      mangaList![i]['attributes']['alt'].toString().length));
+              urlList!.add(mangaUrlList![i]['attributes']['href']);
+
+              imgList!
+                  .add("https:" + mangaList![i]['attributes']['data-original']);
+            }
             setState(() {
               isLoading = false;
             });
@@ -94,19 +142,9 @@ class _SearchContentState extends State<SearchContent> {
                   Navigator.of(context).push(
                     new MaterialPageRoute(
                       builder: (BuildContext context) => new DetailScreen(
-                        mangaLink: mangaUrlList![index]['attributes']['href'],
-                        mangaImg: Constants.id == 1
-                            ? mangaList![index]['attributes']['src']
-                            : "https:" + mangaList![index]['attributes']['src'],
-                        mangaTitle: Constants.id == 1
-                            ? mangaList![index]['attributes']['alt']
-                            : mangaList![index]['attributes']['alt']
-                                .toString()
-                                .substring(
-                                    13,
-                                    mangaList![index]['attributes']['alt']
-                                        .toString()
-                                        .length),
+                        mangaLink: urlList![index],
+                        mangaImg: imgList![index],
+                        mangaTitle: titleList![index],
                         sourceID: Constants.id,
                       ),
                     ),
@@ -114,41 +152,28 @@ class _SearchContentState extends State<SearchContent> {
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: Expanded(
-                    child: Row(
-                      children: [
-                        Container(
-                          width: screenSize.width * 0.12,
-                          child: Image.network(
-                            Constants.id == 1
-                                ? mangaList![index]['attributes']['src']
-                                : "https:" +
-                                    mangaList![index]['attributes']['src'],
-                            fit: BoxFit.cover,
-                          ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: screenSize.width * 0.12,
+                        child: Image.network(
+                          imgList![index],
+                          fit: BoxFit.cover,
                         ),
-                        SizedBox(
-                          width: screenSize.width * 0.05,
+                      ),
+                      SizedBox(
+                        width: screenSize.width * 0.05,
+                      ),
+                      Container(
+                        width: screenSize.width * 0.75,
+                        child: Text(
+                          titleList![index],
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          style: TextStyle(fontSize: 20),
                         ),
-                        Container(
-                          width: screenSize.width * 0.75,
-                          child: Text(
-                            Constants.id == 1
-                                ? mangaList![index]['attributes']['alt']
-                                : mangaList![index]['attributes']['alt']
-                                    .toString()
-                                    .substring(
-                                        13,
-                                        mangaList![index]['attributes']['alt']
-                                            .toString()
-                                            .length),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               );

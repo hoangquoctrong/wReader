@@ -32,7 +32,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
       isLoading = true;
     });
     this.mangaList = await FavoriteDatabase.instance.readAllHistory();
-    print(this.mangaList.toString());
     setState(() {
       isLoading = false;
     });
@@ -61,7 +60,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(
+                    Navigator.push(
+                      context,
                       new MaterialPageRoute(
                         builder: (BuildContext context) => new DetailScreen(
                           mangaLink: mangaList![index].mangaLink,
@@ -70,7 +70,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           sourceID: mangaList![index].sourceID,
                         ),
                       ),
-                    );
+                    ).then((value) => setState(() {}));
                   },
                   child: Column(
                     children: [

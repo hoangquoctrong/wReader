@@ -35,6 +35,51 @@ class _DetailScreenState extends State<DetailScreen> {
   List<Map<String, dynamic>>? mangaArtist;
   void getMangaInfos() async {
     switch (widget.sourceID) {
+      case 4:
+        {
+          mangaGenres = "";
+          print(widget.mangaLink);
+          String tempBaseUrl = widget.mangaLink!.split(".re")[0] + ".re";
+          String tempRoute = widget.mangaLink!.split(".re")[1];
+
+          final webscraper = WebScraper(tempBaseUrl);
+          if (await webscraper.loadWebPage(tempRoute)) {
+            mangaDetail = webscraper.getElement(
+              "div.top-part > div.row > div.col-12.col-md-9 > div.series-information > div.series-gernes > a",
+              [],
+            );
+            mangaDescList = webscraper.getElement(
+              "div.summary-content",
+              [],
+            );
+            mangaArtist = webscraper.getElement(
+              "div.top-part > div.row > div.col-12.col-md-9 > div.series-information > div.info-item > span.info-value",
+              [],
+            );
+            print(mangaDetail);
+            mangaChapterList = webscraper.getElement(
+              "ul.list-chapters.at-series > li > div.chapter-name > a",
+              ['href'],
+            );
+            mangaDesc = mangaDescList![0]['title'].toString().trim();
+            mangaAuthor = mangaArtist![0]['title'].toString().trim() +
+                "\nHọa sĩ: " +
+                mangaArtist![1]['title'].toString().trim();
+            for (int i = 0; i < mangaDetail!.length; i++) {
+              if (i != mangaDetail!.length - 1)
+                mangaGenres =
+                    mangaGenres! + "${mangaDetail![i]['title'].toString()} - ";
+              else
+                mangaGenres =
+                    mangaGenres! + "${mangaDetail![i]['title'].toString()}";
+            }
+            print("mangaDetail:" + mangaDetail.toString());
+            setState(() {
+              mangaLoaded = true;
+            });
+          }
+          break;
+        }
       case 1:
         {
           String tempBaseUrl = widget.mangaLink!.split(".net")[0] + ".net";

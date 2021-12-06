@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wreader/Screen/content_screen.dart';
-import 'package:wreader/Screen/detail_screen.dart';
+import 'package:wreader/Screen/content_screen_read.dart';
 import 'package:wreader/Screen/home_screen.dart';
 import 'package:wreader/constants/constants.dart';
 
@@ -16,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'wReader',
       theme: ThemeData(
           scaffoldBackgroundColor: Constants.black,
           brightness: Brightness.dark),

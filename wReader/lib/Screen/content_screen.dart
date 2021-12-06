@@ -369,35 +369,20 @@ class _ContentScreenState extends State<ContentScreen> {
                       shrinkWrap: true,
                       itemCount: contentPages!.length,
                       itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: ClipRRect(
-                            child: CachedNetworkImage(
-                              imageUrl: widget.id == 3
-                                  ? "https:" +
-                                      contentPages![index]['attributes']
-                                              ['data-original']
-                                          .toString()
-                                          .trim()
-                                  : contentPages![index]['attributes']['src']
-                                      .toString()
-                                      .trim(),
-                              fit: BoxFit.fitWidth,
-                            ),
+                        return ClipRRect(
+                          child: CachedNetworkImage(
+                            imageUrl: widget.id == 3
+                                ? "https:" +
+                                    contentPages![index]['attributes']
+                                            ['data-original']
+                                        .toString()
+                                        .trim()
+                                : contentPages![index]['attributes']['src']
+                                    .toString()
+                                    .trim(),
+                            fit: BoxFit.fitWidth,
                           ),
                         );
-
-                        // Image.network(
-                        //   contentPages![index]['attributes']['src']
-                        //       .toString()
-                        //       .trim(),
-                        //   fit: BoxFit.fitWidth,
-                        //   loadingBuilder: (context, child, loadingProgress) {
-                        //     if (loadingProgress == null) return child;
-
-                        //     return Center(child: CircularProgressIndicator());
-                        //   },
-                        // );
                       }),
                 ),
               )

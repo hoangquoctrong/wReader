@@ -68,7 +68,6 @@ class _MangaListState extends State<MangaList> {
                   : imgList!.add(newmangaList![i]['attributes']['src']);
             }
             page = 2;
-
             setState(() {});
           }
           break;
@@ -99,6 +98,32 @@ class _MangaListState extends State<MangaList> {
           }
           break;
         }
+      case 4:
+        {
+          if (await webscraper.loadWebPage(
+              "danh-sach?truyendich=1&sapxep=capnhat&page=" +
+                  page.toString())) {
+            newmangaList = webscraper.getElement(
+                'main.row > div.thumb-item-flow.col-4.col-md-3.col-lg-2 > div.thumb-wrapper.ln-tooltip > a > div.a6-ratio > div.content',
+                [
+                  'data-bg',
+                ]);
+            newmangaUrlList = webscraper.getElement(
+              'main.row > div.thumb-item-flow.col-4.col-md-3.col-lg-2 > div.thumb_attr.series-title > a',
+              ['href'],
+            );
+            for (int i = 0; i < newmangaList!.length; i++) {
+              titleList!.add(newmangaUrlList![i]['title']);
+              urlList!.add("https://ln.hako.re" +
+                  newmangaUrlList![i]['attributes']['href']);
+              imgList!.add(newmangaList![i]['attributes']['data-bg']);
+            }
+            page = 2;
+
+            setState(() {});
+          }
+          break;
+        }
       default:
         final webTemp = 'comic?page=1';
         if (await webscraper.loadWebPage(webTemp)) {
@@ -115,7 +140,6 @@ class _MangaListState extends State<MangaList> {
             urlList!.add(newmangaUrlList![i]['attributes']['href']);
             imgList!.add(newmangaList![i]['attributes']['data-original']);
           }
-          print(imgList);
           page = 2;
           setState(() {});
         }
@@ -132,6 +156,32 @@ class _MangaListState extends State<MangaList> {
   Future<void> _getMoreData(int index) async {
     final webscraper = WebScraper(Constants.baseUrl);
     switch (Constants.id) {
+      case 4:
+        {
+          if (await webscraper.loadWebPage(
+              "danh-sach?truyendich=1&sapxep=capnhat&page=" +
+                  page.toString())) {
+            newmangaList = webscraper.getElement(
+                'main.row > div.thumb-item-flow.col-4.col-md-3.col-lg-2 > div.thumb-wrapper.ln-tooltip > a > div.a6-ratio > div.content',
+                [
+                  'data-bg',
+                ]);
+            newmangaUrlList = webscraper.getElement(
+              'main.row > div.thumb-item-flow.col-4.col-md-3.col-lg-2 > div.thumb_attr.series-title > a',
+              ['href'],
+            );
+            for (int i = 0; i < newmangaList!.length; i++) {
+              titleList!.add(newmangaUrlList![i]['title']);
+              urlList!.add("https://ln.hako.re" +
+                  newmangaUrlList![i]['attributes']['href']);
+              imgList!.add(newmangaList![i]['attributes']['data-bg']);
+            }
+            page++;
+            print(page);
+            setState(() {});
+          }
+          break;
+        }
       case 1:
         {
           if (await webscraper.loadWebPage("?page=" + page.toString())) {

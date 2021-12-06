@@ -1,7 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:swipe_back_detector/swipe_back_detector.dart';
 import 'package:wreader/Screen/content_screen.dart';
+import 'package:wreader/Screen/content_screen_read.dart';
 import 'package:wreader/components/Databases/favorite.dart';
 import 'package:wreader/components/Databases/favoriteDAO.dart';
 import 'package:wreader/components/Databases/history.dart';
@@ -78,15 +80,19 @@ class _MangaInfoState extends State<MangaInfo> {
         mangaAuthor: "",
         mangaChapter: widget.mangaChapter![widget.mangaChapter!.length - 1]
             ['title'],
-        mangaChapterLink: widget.mangaChapter![widget.mangaChapter!.length - 1]
-            ['attributes']['href'],
-        mangaChapterIndex: widget.mangaChapter!.length - 1,
+        mangaChapterLink: widget.sourceID == 4
+            ? "https://ln.hako.re" +
+                widget.mangaChapter![0]['attributes']['href']
+            : widget.mangaChapter![0]['attributes']['href'],
+        mangaChapterIndex:
+            widget.sourceID == 4 ? 0 : widget.mangaChapter!.length - 1,
         id: DateTime.now().millisecondsSinceEpoch,
         sourceID: Constants.id,
       );
       print(history!.mangaChapter);
       print(history!.mangaChapterLink);
       print(history!.mangaLink);
+      print(history!.mangaChapterIndex);
       await FavoriteDatabase.instance.createHistory(history!);
       print("run create");
     }
@@ -96,6 +102,28 @@ class _MangaInfoState extends State<MangaInfo> {
     List<History> readHistory =
         await FavoriteDatabase.instance.readHistory(widget.mangaLink!);
     history = readHistory[0];
+  }
+
+  void navigatorPush(BuildContext context, Widget page) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => page,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final begin = Offset(1.0, 0.0);
+          final end = Offset.zero;
+          final curve = Curves.ease;
+          final tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          return SwipeBackDetector(
+            child: SlideTransition(
+              position: animation.drive(tween),
+              child: child,
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -178,21 +206,41 @@ class _MangaInfoState extends State<MangaInfo> {
                 GestureDetector(
                   onTap: () {
                     readHistory();
-                    Navigator.of(context).push(
-                      new MaterialPageRoute(
-                        builder: (BuildContext context) => new ContentScreen(
-                            mangaLink: history!.mangaLink,
-                            mangaChapter: widget.mangaChapter,
-                            index: history!.mangaChapterIndex,
-                            mangaAuthor: history!.mangaAuthor,
-                            mangaDesc: history!.mangaDesc,
-                            mangaGenres: history!.mangaGenres,
-                            mangaImg: history!.mangaImg,
-                            mangaTitle: history!.mangaTitle,
-                            mangaChapterLink: history!.mangaChapterLink,
-                            id: history!.sourceID),
-                      ),
-                    );
+                    widget.sourceID == 4
+                        ? Navigator.of(context).push(
+                            new MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  new ContentScreenRead(
+                                      mangaLink: history!.mangaLink,
+                                      mangaChapter: widget.mangaChapter,
+                                      index: history!.mangaChapterIndex,
+                                      mangaAuthor: history!.mangaAuthor,
+                                      mangaDesc: history!.mangaDesc,
+                                      mangaGenres: history!.mangaGenres,
+                                      mangaImg: history!.mangaImg,
+                                      mangaTitle: history!.mangaTitle,
+                                      mangaChapterLink:
+                                          history!.mangaChapterLink,
+                                      id: history!.sourceID),
+                            ),
+                          )
+                        : Navigator.of(context).push(
+                            new MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  new ContentScreen(
+                                      mangaLink: history!.mangaLink,
+                                      mangaChapter: widget.mangaChapter,
+                                      index: history!.mangaChapterIndex,
+                                      mangaAuthor: history!.mangaAuthor,
+                                      mangaDesc: history!.mangaDesc,
+                                      mangaGenres: history!.mangaGenres,
+                                      mangaImg: history!.mangaImg,
+                                      mangaTitle: history!.mangaTitle,
+                                      mangaChapterLink:
+                                          history!.mangaChapterLink,
+                                      id: history!.sourceID),
+                            ),
+                          );
                   },
                   child: MangaInfoBtn(
                     icon: Icons.play_arrow_outlined,
@@ -216,8 +264,9 @@ class _MangaInfoState extends State<MangaInfo> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(new MaterialPageRoute(
-                      builder: (BuildContext context) => new MangaChapters(
+                    navigatorPush(
+                      context,
+                      new MangaChapters(
                         mangaAuthor: widget.mangaAuthor.toString(),
                         mangaDesc: "",
                         mangaGenres: "",
@@ -227,7 +276,7 @@ class _MangaInfoState extends State<MangaInfo> {
                         mangaChapter: widget.mangaChapter,
                         sourceID: history!.sourceID,
                       ),
-                    ));
+                    );
                   },
                   child: MangaInfoBtn(
                     icon: Icons.menu_open_outlined,
