@@ -275,7 +275,7 @@ class _MangaListState extends State<MangaList> {
     return Container(
       height: screenSize.height,
       width: double.infinity,
-      color: Constants.black,
+      color: Constants.darkgray,
       child: SmartRefresher(
         enablePullUp: true,
         enablePullDown: true,

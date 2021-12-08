@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:restart_app/restart_app.dart';
+import 'package:wreader/Screen/cache_screen.dart';
 import 'package:wreader/Screen/detail_screen.dart';
 import 'package:wreader/Screen/favourite_screen.dart';
 import 'package:wreader/Screen/history_screen.dart';
@@ -274,19 +275,6 @@ class _HomeScreenState extends State<HomeScreen> {
         SimpleDialogItem(
           icon: Icons.link,
           color: Colors.blue,
-          text: 'Nettruyen (Manga)',
-          onPressed: () {
-            setState(() {
-              mangaLoaded = false;
-            });
-            updateID(3).then((value) => Restart.restartApp());
-
-            Navigator.pop(context);
-          },
-        ),
-        SimpleDialogItem(
-          icon: Icons.link,
-          color: Colors.blue,
           text: 'LN.hako.re (Novel)',
           onPressed: () {
             setState(() {
@@ -338,6 +326,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(fontSize: 20),
               ),
               onTap: () {
+                Navigator.of(context).push(new MaterialPageRoute(
+                  builder: (BuildContext context) => new CacheScreen(),
+                ));
                 // Update the state of the app.
                 // ...
               },

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:wreader/Screen/detail_screen.dart';
 import 'package:wreader/components/Databases/favorite.dart';
 import 'package:wreader/components/Databases/favoriteDAO.dart';
 import 'package:wreader/components/HomeScreenComponents/manga_cards.dart';
@@ -56,7 +57,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
           : Container(
               height: screenSize.height,
               width: double.infinity,
-              color: Constants.black,
+              color: Constants.darkgray,
               child: SingleChildScrollView(
                 physics: BouncingScrollPhysics(),
                 child: Column(
@@ -71,12 +72,73 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
                                 ),
                         ),
                         for (int i = 0; i < mangaList!.length; i++)
-                          mangaCard(
-                            mangaImg: mangaList![i].mangaImg,
-                            mangaTitle: mangaList![i].mangaTitle,
-                            mangaUrl: mangaList![i].mangaLink,
-                            sourceID: mangaList![i].sourceID,
-                          ),
+                          Container(
+                              margin: EdgeInsets.only(
+                                  left: (screenSize.width * 0.025)),
+                              height: 200,
+                              width: screenSize.width * 0.3,
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context)
+                                      .push(new MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            new DetailScreen(
+                                          mangaImg: mangaList![i].mangaImg,
+                                          mangaLink: mangaList![i].mangaLink,
+                                          mangaTitle: mangaList![i].mangaTitle,
+                                          sourceID: mangaList![i].sourceID,
+                                        ),
+                                      ))
+                                      .then((value) => refreshFavorite());
+                                },
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                      flex: 75,
+                                      child: Container(
+                                          child: ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        child: Image.network(
+                                          mangaList![i].mangaImg,
+                                          fit: BoxFit.cover,
+                                          loadingBuilder: (context, child,
+                                              loadingProgress) {
+                                            if (loadingProgress == null)
+                                              return child;
+                                            return Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            );
+                                          },
+                                        ),
+                                      )),
+                                    ),
+                                    Expanded(
+                                      flex: 20,
+                                      child: Container(
+                                        child: Text(
+                                          mangaList![i].mangaTitle,
+                                          textAlign: TextAlign.center,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 2,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Arial',
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ))
+                        // mangaCard(
+                        //   mangaImg: mangaList![i].mangaImg,
+                        //   mangaTitle: mangaList![i].mangaTitle,
+                        //   mangaUrl: mangaList![i].mangaLink,
+                        //   sourceID: mangaList![i].sourceID,
+                        // ),
                       ],
                     ),
                   ],

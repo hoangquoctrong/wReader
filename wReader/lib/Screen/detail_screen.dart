@@ -33,6 +33,7 @@ class _DetailScreenState extends State<DetailScreen> {
   List<Map<String, dynamic>>? mangaDescList;
   List<Map<String, dynamic>>? mangaChapterList;
   List<Map<String, dynamic>>? mangaArtist;
+
   void getMangaInfos() async {
     switch (widget.sourceID) {
       case 4:
@@ -66,13 +67,14 @@ class _DetailScreenState extends State<DetailScreen> {
                 "\nHọa sĩ: " +
                 mangaArtist![1]['title'].toString().trim();
             for (int i = 0; i < mangaDetail!.length; i++) {
-              if (i != mangaDetail!.length - 1)
+              if (i != 0)
                 mangaGenres =
-                    mangaGenres! + "${mangaDetail![i]['title'].toString()} - ";
+                    mangaGenres! + " - ${mangaDetail![i]['title'].toString()}";
               else
                 mangaGenres =
                     mangaGenres! + "${mangaDetail![i]['title'].toString()}";
             }
+            mangaGenres = mangaGenres!.replaceAll("\n", "");
             print("mangaDetail:" + mangaDetail.toString());
             setState(() {
               mangaLoaded = true;
@@ -104,7 +106,7 @@ class _DetailScreenState extends State<DetailScreen> {
             mangaDesc = mangaDescList![0]['title'].toString().trim();
             mangaAuthor = mangaDetail![1]['title'].toString().trim();
             mangaGenres = mangaDetail![5]['title'].toString().trim();
-            mangaGenres!.replaceAll("\n", " - ");
+            mangaGenres = mangaGenres!.replaceAll("\n", " - ");
             print("mangaDetail:" + mangaDetail.toString());
             setState(() {
               mangaLoaded = true;

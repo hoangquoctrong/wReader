@@ -55,76 +55,80 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : ListView.builder(
-              itemCount: mangaList!.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                        builder: (BuildContext context) => new DetailScreen(
-                          mangaLink: mangaList![index].mangaLink,
-                          mangaImg: mangaList![index].mangaImg,
-                          mangaTitle: mangaList![index].mangaTitle,
-                          sourceID: mangaList![index].sourceID,
-                        ),
-                      ),
-                    ).then((value) => setState(() {}));
-                  },
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: screenSize.width * 0.12,
-                              child: Image.network(
-                                mangaList![index].mangaImg,
-                                fit: BoxFit.cover,
-                              ),
+          : Ink(
+              color: Constants.darkgray,
+              child: ListView.builder(
+                  itemCount: mangaList!.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          new MaterialPageRoute(
+                            builder: (BuildContext context) => new DetailScreen(
+                              mangaLink: mangaList![index].mangaLink,
+                              mangaImg: mangaList![index].mangaImg,
+                              mangaTitle: mangaList![index].mangaTitle,
+                              sourceID: mangaList![index].sourceID,
                             ),
-                            SizedBox(
-                              width: screenSize.width * 0.05,
-                            ),
-                            Container(
-                              width: screenSize.width * 0.75,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    child: Text(
-                                      mangaList![index].mangaTitle,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      style: TextStyle(fontSize: 20),
-                                    ),
+                          ),
+                        ).then((value) => refreshHistory());
+                      },
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: screenSize.width * 0.12,
+                                  child: Image.network(
+                                    mangaList![index].mangaImg,
+                                    fit: BoxFit.cover,
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 10),
-                                    child: Text(
-                                      mangaList![index].mangaChapter,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Colors.grey,
+                                ),
+                                SizedBox(
+                                  width: screenSize.width * 0.05,
+                                ),
+                                Container(
+                                  width: screenSize.width * 0.75,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        child: Text(
+                                          mangaList![index].mangaTitle,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: TextStyle(fontSize: 20),
+                                        ),
                                       ),
-                                      textAlign: TextAlign.left,
-                                    ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 10),
+                                        child: Text(
+                                          mangaList![index].mangaChapter,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: Colors.grey,
+                                          ),
+                                          textAlign: TextAlign.left,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                          HorDivider(),
+                        ],
                       ),
-                      HorDivider(),
-                    ],
-                  ),
-                );
-              }),
+                    );
+                  }),
+            ),
     );
   }
 }

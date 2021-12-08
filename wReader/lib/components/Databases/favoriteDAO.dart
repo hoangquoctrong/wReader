@@ -212,6 +212,16 @@ class FavoriteDatabase {
     );
   }
 
+  Future<int> deleteHistory(String mangaLink) async {
+    final db = await instance.database;
+
+    return await db!.delete(
+      tableHistory,
+      where: '${HistoryFields.mangaLink} = ?',
+      whereArgs: [mangaLink],
+    );
+  }
+
   Future close() async {
     final db = await instance.database;
     db!.close();

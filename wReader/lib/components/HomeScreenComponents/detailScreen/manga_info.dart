@@ -1,6 +1,8 @@
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:swipe_back_detector/swipe_back_detector.dart';
 import 'package:wreader/Screen/content_screen.dart';
 import 'package:wreader/Screen/content_screen_read.dart';
@@ -39,6 +41,8 @@ class _MangaInfoState extends State<MangaInfo> {
   List<Favorite>? mangaList;
   int id = DateTime.now().millisecondsSinceEpoch;
   History? history;
+  List<String> cacheURL = [];
+
   Future<void> FavoriteChange() async {
     if (isFavorite == true) {
       isFavorite = false;
@@ -83,16 +87,13 @@ class _MangaInfoState extends State<MangaInfo> {
         mangaChapterLink: widget.sourceID == 4
             ? "https://ln.hako.re" +
                 widget.mangaChapter![0]['attributes']['href']
-            : widget.mangaChapter![0]['attributes']['href'],
+            : widget.mangaChapter![widget.mangaChapter!.length - 1]
+                ['attributes']['href'],
         mangaChapterIndex:
             widget.sourceID == 4 ? 0 : widget.mangaChapter!.length - 1,
         id: DateTime.now().millisecondsSinceEpoch,
         sourceID: Constants.id,
       );
-      print(history!.mangaChapter);
-      print(history!.mangaChapterLink);
-      print(history!.mangaLink);
-      print(history!.mangaChapterIndex);
       await FavoriteDatabase.instance.createHistory(history!);
       print("run create");
     }
@@ -102,6 +103,19 @@ class _MangaInfoState extends State<MangaInfo> {
     List<History> readHistory =
         await FavoriteDatabase.instance.readHistory(widget.mangaLink!);
     history = readHistory[0];
+    await FavoriteDatabase.instance.updateHistory(History(
+      id: DateTime.now().millisecondsSinceEpoch,
+      mangaTitle: history!.mangaTitle,
+      mangaLink: history!.mangaLink,
+      mangaImg: history!.mangaImg,
+      mangaDesc: history!.mangaDesc,
+      mangaGenres: history!.mangaGenres,
+      mangaAuthor: history!.mangaAuthor,
+      mangaChapter: history!.mangaChapter,
+      mangaChapterLink: history!.mangaChapterLink,
+      mangaChapterIndex: history!.mangaChapterIndex,
+      sourceID: history!.sourceID,
+    ));
   }
 
   void navigatorPush(BuildContext context, Widget page) {

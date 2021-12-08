@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:web_scraper/web_scraper.dart';
@@ -44,7 +45,10 @@ class _ContentScreenReadState extends State<ContentScreenRead> {
   List<Map<String, dynamic>>? chapterHeader;
   bool dataFetched = false;
   String? mangaUrl;
+  List<String>? cacheLink;
   int? indexChap;
+
+  CacheManager? cacheManager;
 
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -139,6 +143,7 @@ class _ContentScreenReadState extends State<ContentScreenRead> {
   void ChapterChange(String mangaLink, int index) async {
     mangaUrl = mangaLink;
     indexChap = index;
+
     SaveIntoDB(mangaLink, index);
     await getContent();
     setState(() {});
@@ -146,6 +151,11 @@ class _ContentScreenReadState extends State<ContentScreenRead> {
 
   @override
   void initState() {
+    cacheLink = widget.mangaChapterLink.split(".re/");
+    cacheManager = CacheManager(Config(cacheLink![1]));
+
+    print(cacheLink![1]);
+
     ChapterChange(widget.mangaChapterLink, widget.index);
     // TODO: implement initState
     super.initState();
@@ -278,9 +288,11 @@ class _ContentScreenReadState extends State<ContentScreenRead> {
                               ),
                               contentPages![index]['attributes']['src'] != null
                                   ? CachedNetworkImage(
+                                      cacheManager: cacheManager,
                                       imageUrl: contentPages![index]
                                           ['attributes']['src'],
                                       fit: BoxFit.fitWidth,
+                                      key: Key(widget.mangaLink),
                                     )
                                   : Container(),
                               SizedBox(

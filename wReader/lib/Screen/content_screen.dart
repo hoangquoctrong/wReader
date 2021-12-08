@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:web_scraper/web_scraper.dart';
@@ -44,6 +45,11 @@ class _ContentScreenState extends State<ContentScreen> {
   bool dataFetched = false;
   String? mangaUrl;
   int? indexChap;
+  List<String> urlList = [];
+
+  List<String> cacheUrl = [];
+
+  CacheManager? cacheManager;
 
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -73,6 +79,7 @@ class _ContentScreenState extends State<ContentScreen> {
         mangaChapterIndex: index,
         id: DateTime.now().millisecondsSinceEpoch,
         sourceID: widget.id);
+
     if (await FavoriteDatabase.instance
             .checkHistory(widget.mangaLink.toString()) ==
         true) {
@@ -86,6 +93,7 @@ class _ContentScreenState extends State<ContentScreen> {
   void ChapterChange(String mangaLink, int index) async {
     mangaUrl = mangaLink;
     indexChap = index;
+    List<String> cacheURL = [];
     SaveIntoDB(mangaLink, index);
     await getContent();
     setState(() {});
@@ -180,6 +188,7 @@ class _ContentScreenState extends State<ContentScreen> {
   }
 
   Future<void> getContent() async {
+    urlList = [];
     setState(() {
       dataFetched = false;
     });
@@ -200,7 +209,13 @@ class _ContentScreenState extends State<ContentScreen> {
               'div.chapter-nav-bottom.text-center.mrt5.mrb5 > a',
               ['href', 'class'],
             );
-            print(chapterChanges);
+            for (int i = 0; i < contentPages!.length; i++) {
+              urlList.add("https:" +
+                  contentPages![i]['attributes']['data-original']
+                      .toString()
+                      .trim());
+            }
+            print(urlList);
 
             setState(() {
               dataFetched = true;
@@ -223,8 +238,12 @@ class _ContentScreenState extends State<ContentScreen> {
               'div.entry-header_wrap > div.select-pagination > div.nav-links > div > a',
               ['href', 'class'],
             );
-            print(chapterChanges);
-
+            print(urlList);
+            for (int i = 0; i < contentPages!.length; i++) {
+              urlList
+                  .add(contentPages![i]['attributes']['src'].toString().trim());
+            }
+            print(urlList);
             setState(() {
               dataFetched = true;
             });
@@ -246,7 +265,11 @@ class _ContentScreenState extends State<ContentScreen> {
               'div.reading-control > div.chapter-nav > a',
               ['href', 'class'],
             );
-            print(chapterChanges);
+            for (int i = 0; i < contentPages!.length; i++) {
+              urlList
+                  .add(contentPages![i]['attributes']['src'].toString().trim());
+            }
+            print(urlList);
             setState(() {
               dataFetched = true;
             });
@@ -257,6 +280,25 @@ class _ContentScreenState extends State<ContentScreen> {
 
   @override
   void initState() {
+    switch (widget.id) {
+      case 1:
+        {
+          cacheUrl = widget.mangaLink.split("saytruyen.net/");
+          print(cacheUrl[1]);
+
+          break;
+        }
+      case 2:
+        {
+          cacheUrl = widget.mangaLink.split("truyentranh.net/");
+          break;
+        }
+      default:
+        {
+          cacheUrl = widget.mangaLink.split("truyen-tranh/");
+        }
+    }
+    cacheManager = CacheManager(Config(cacheUrl[1]));
     // TODO: implement initState
     super.initState();
     mangaUrl = widget.mangaChapterLink;
@@ -369,18 +411,27 @@ class _ContentScreenState extends State<ContentScreen> {
                       shrinkWrap: true,
                       itemCount: contentPages!.length,
                       itemBuilder: (context, index) {
-                        return ClipRRect(
+                        return Container(
+                          constraints: BoxConstraints(minHeight: 200),
                           child: CachedNetworkImage(
-                            imageUrl: widget.id == 3
-                                ? "https:" +
-                                    contentPages![index]['attributes']
-                                            ['data-original']
-                                        .toString()
-                                        .trim()
-                                : contentPages![index]['attributes']['src']
-                                    .toString()
-                                    .trim(),
+                            cacheManager: cacheManager,
+                            key: Key(widget.mangaLink),
+                            imageUrl: urlList[index],
                             fit: BoxFit.fitWidth,
+                            errorWidget: (context, url, error) =>
+                                const ColoredBox(
+                              color: Colors.black45,
+                              child: Icon(
+                                Icons.error,
+                                size: 50,
+                                color: Colors.red,
+                              ),
+                            ),
+                            placeholder: (context, url) => const ColoredBox(
+                              color: Colors.black45,
+                              child: Center(
+                                  child: const CircularProgressIndicator()),
+                            ),
                           ),
                         );
                       }),
