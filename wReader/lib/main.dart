@@ -5,9 +5,6 @@ import 'package:wreader/Screen/home_screen.dart';
 import 'package:wreader/constants/constants.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-
   runApp(const MyApp());
 }
 
