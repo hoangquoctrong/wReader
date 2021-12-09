@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:wreader/Screen/cache_screen.dart';
 import 'package:wreader/Screen/detail_screen.dart';
+import 'package:wreader/Screen/drive_screen.dart';
 import 'package:wreader/Screen/favourite_screen.dart';
+import 'package:wreader/Screen/google_sign_in.dart';
 import 'package:wreader/Screen/history_screen.dart';
+import 'package:wreader/Screen/waiting_screen.dart';
 import 'package:wreader/components/Databases/favoriteDAO.dart';
 import 'package:wreader/components/Databases/id.dart';
 import 'package:wreader/components/HomeScreenComponents/search_screen.dart';
@@ -333,16 +336,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 // ...
               },
             ),
-            ListTile(
-              title: const Text(
-                'Đồng bộ drive',
-                style: TextStyle(fontSize: 20),
-              ),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
+            // ListTile(
+            //   title: const Text(
+            //     'Đồng bộ drive',
+            //     style: TextStyle(fontSize: 20),
+            //   ),
+            //   onTap: () {
+            //     Navigator.of(context).push(new MaterialPageRoute(
+            //       builder: (BuildContext context) => new WaitingScreen(),
+            //     ));
+            //   },
+            // ),
           ],
         ),
       ),

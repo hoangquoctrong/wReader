@@ -48,7 +48,7 @@ class _MangaListState extends State<MangaList> {
     switch (Constants.id) {
       case 1:
         {
-          if (await webscraper.loadWebPage("?page=" + page.toString())) {
+          if (await webscraper.loadWebPage("?page=1")) {
             newmangaList = webscraper.getElement(
                 'div.manga-content > div.row.px-2.list-item > div.col-6.col-md-3.badge-pos-1.px-2 > div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a > img.img-responsive',
                 [
@@ -100,9 +100,8 @@ class _MangaListState extends State<MangaList> {
         }
       case 4:
         {
-          if (await webscraper.loadWebPage(
-              "danh-sach?truyendich=1&sapxep=capnhat&page=" +
-                  page.toString())) {
+          if (await webscraper
+              .loadWebPage("danh-sach?truyendich=1&sapxep=capnhat")) {
             newmangaList = webscraper.getElement(
                 'main.row > div.thumb-item-flow.col-4.col-md-3.col-lg-2 > div.thumb-wrapper.ln-tooltip > a > div.a6-ratio > div.content',
                 [

@@ -3,6 +3,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:material_dialogs/material_dialogs.dart';
 import 'package:material_dialogs/widgets/buttons/icon_outline_button.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:wreader/components/Databases/cacheInfo.dart';
 import 'dart:io';
 
 import 'package:wreader/components/Databases/favoriteDAO.dart';
@@ -24,6 +25,7 @@ class _CacheScreenState extends State<CacheScreen> {
   List<double> sizeList = [];
 
   List<History> historyList = [];
+  List<CacheInfo> cacheList = [];
 
   double dirStatSync(String dirPath) {
     double fileNum = 0;
@@ -50,6 +52,7 @@ class _CacheScreenState extends State<CacheScreen> {
   void reFresh() {
     totalsize = 0;
     sizeList = [];
+    cacheList = [];
     for (int i = 0; i < historyList.length; i++) {
       List<String> historyCacheLink;
       if (historyList[i].id == 4) {
@@ -57,14 +60,25 @@ class _CacheScreenState extends State<CacheScreen> {
       } else {
         historyCacheLink = historyList[i].mangaLink.split(".net/");
       }
+      double size = 0;
+      if (historyCacheLink.length == 2) {
+        size = dirStatSync(
+                "/data/data/com.example.wreader/cache/" + historyCacheLink[1]) /
+            1024 /
+            1024;
+      }
 
-      double size = dirStatSync(
-              "/data/data/com.example.wreader/cache/" + historyCacheLink[1]) /
-          1024 /
-          1024;
+      CacheInfo cacheInfo = new CacheInfo(
+          size,
+          historyList[i].mangaLink,
+          historyList[i].mangaImg,
+          historyList[i].mangaTitle,
+          historyList[i].sourceID);
+      cacheList.add(cacheInfo);
       sizeList.add(size);
       totalsize = totalsize + size;
     }
+    cacheList.sort((a, b) => b.size.compareTo(a.size));
     setState(() {
       isLoading = false;
     });
@@ -105,28 +119,6 @@ class _CacheScreenState extends State<CacheScreen> {
     emptyCache().then((value) => reFreshCache());
   }
 
-  showMyAlertDialog(BuildContext context, String mangaLink, id) {
-    // Create AlertDialog
-    AlertDialog dialog = AlertDialog(
-      title: Text("Xóa cache"),
-      content: Text("Bạn muốn xóa cache của bộ này?"),
-      actions: [
-        ElevatedButton(
-            child: Text("Yes"),
-            onPressed: () {
-              deleteOnClick(mangaLink, id!);
-              Navigator.of(context).pop("Yes, Of course!"); // Return value
-            }),
-        ElevatedButton(
-            child: Text("No"),
-            onPressed: () {
-              Navigator.of(context)
-                  .pop("No, I will vote for Biden"); // Return value
-            }),
-      ],
-    );
-  }
-
   @override
   void initState() {
     reFreshCache();
@@ -156,8 +148,8 @@ class _CacheScreenState extends State<CacheScreen> {
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
-                        deleteOnClick(historyList[index].mangaLink,
-                            historyList[index].id!);
+                        deleteOnClick(
+                            cacheList[index].mangaLink, cacheList[index].id);
                       },
                       child: Column(
                         children: [
@@ -168,7 +160,7 @@ class _CacheScreenState extends State<CacheScreen> {
                                 Container(
                                   width: screenSize.width * 0.12,
                                   child: Image.network(
-                                    historyList[index].mangaImg,
+                                    cacheList[index].mangaImg,
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -183,7 +175,7 @@ class _CacheScreenState extends State<CacheScreen> {
                                     children: [
                                       Container(
                                         child: Text(
-                                          historyList[index].mangaTitle,
+                                          cacheList[index].mangaTitle,
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
                                           style: TextStyle(fontSize: 20),
@@ -192,8 +184,9 @@ class _CacheScreenState extends State<CacheScreen> {
                                       Padding(
                                         padding: const EdgeInsets.only(top: 10),
                                         child: Text(
-                                          "Dung lượng cache: " +
-                                              sizeList[index]
+                                          "Dung lượng đã cache: " +
+                                              cacheList[index]
+                                                  .size
                                                   .toStringAsFixed(2) +
                                               " MB",
                                           overflow: TextOverflow.ellipsis,

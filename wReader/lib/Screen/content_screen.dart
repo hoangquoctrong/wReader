@@ -262,14 +262,14 @@ class _ContentScreenState extends State<ContentScreen> {
               ['src'],
             );
             chapterChanges = webscraper.getElement(
-              'div.reading-control > div.chapter-nav > a',
+              'div.container > div.header-chapter-selection > a',
               ['href', 'class'],
             );
             for (int i = 0; i < contentPages!.length; i++) {
               urlList
                   .add(contentPages![i]['attributes']['src'].toString().trim());
             }
-            print(urlList);
+            print(chapterChanges);
             setState(() {
               dataFetched = true;
             });
