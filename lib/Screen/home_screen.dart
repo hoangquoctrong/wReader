@@ -68,14 +68,14 @@ class _HomeScreenState extends State<HomeScreen> {
       case 1:
         if (await webscraper.loadWebPage("")) {
           mangaList = webscraper.getElement(
-              'div.manga-content > div.row.px-2.list-item > div.col-6.col-md-3.badge-pos-1.px-2 > div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a > img.img-responsive',
+              'div.manga-content > div.row.px-2.list-item > div > div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a > img.img-responsive',
               [
                 'src',
                 'title',
                 'data-src',
               ]);
           mangaUrlList = webscraper.getElement(
-            'div.manga-content > div.row.px-2.list-item > div.col-6.col-md-3.badge-pos-1.px-2 > div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a',
+            'div.manga-content > div.row.px-2.list-item > div > div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a',
             ['href'],
           );
           for (int i = 0; i < mangaList!.length; i++) {
