@@ -57,7 +57,7 @@ class _MangaListState extends State<MangaList> {
                   'data-src',
                 ]);
             newmangaUrlList = webscraper.getElement(
-              'div.manga-content > div.row.px-2.list-item > div > div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a',
+              'div.manga-content > div.row.px-2.list-item > div> div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a',
               ['href'],
             );
             for (int i = 0; i < newmangaList!.length; i++) {

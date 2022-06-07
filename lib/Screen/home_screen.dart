@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 1:
         if (await webscraper.loadWebPage("")) {
           mangaList = webscraper.getElement(
-              'div.manga-content > div.row.px-2.list-item > div > div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a > img.img-responsive',
+              'div.manga-content > div.row.px-2.list-item > div> div.page-item-detail > div.item-thumb.hover-details.c-image-hover > a > img.img-responsive',
               [
                 'src',
                 'title',
